@@ -251,7 +251,7 @@ export default function MagnifierLoupe({
           width: loupeDiameter,
           height: loupeDiameter,
           borderRadius: '50%',
-          boxShadow: '0 16px 36px -4px rgba(0, 0, 0, 0.35), 0 0 0 4px #FFFFFF, 0 0 0 6px rgba(0, 0, 0, 0.12)',
+          boxShadow: '0 16px 36px -4px rgba(0, 0, 0, 0.4), 0 0 0 3px var(--bg-card), 0 0 0 5px var(--border-color)',
           overflow: 'hidden',
           background: '#0F172A',
           transition: 'transform 0.05s ease-out'
@@ -302,10 +302,10 @@ export default function MagnifierLoupe({
           top: cardTop,
           width: CARD_WIDTH,
           minHeight: CARD_HEIGHT,
-          background: '#FFFFFF',
+          background: 'var(--bg-card)',
           borderRadius: 10,
           padding: isSmall ? '4px 8px' : '6px 10px',
-          boxShadow: '0 8px 24px -2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06)',
+          boxShadow: 'var(--shadow-lg), 0 0 0 1px var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           gap: isSmall ? 6 : 8,
@@ -335,7 +335,7 @@ export default function MagnifierLoupe({
               fontFamily: 'var(--font-mono)',
               fontSize: isSmall ? '0.74rem' : '0.82rem',
               fontWeight: 800,
-              color: '#0F172A',
+              color: 'var(--text-primary)',
               lineHeight: 1.15
             }}
           >
@@ -345,7 +345,7 @@ export default function MagnifierLoupe({
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: isSmall ? '0.58rem' : '0.62rem',
-              color: '#64748B',
+              color: 'var(--text-muted)',
               lineHeight: 1.15,
               marginTop: 2,
               whiteSpace: 'nowrap',
@@ -358,7 +358,7 @@ export default function MagnifierLoupe({
         </div>
 
         {/* Copy button icon */}
-        <div style={{ color: copied ? '#10B981' : '#94A3B8', flexShrink: 0 }}>
+        <div style={{ color: copied ? 'var(--badge-success-text)' : 'var(--text-muted)', flexShrink: 0 }}>
           {copied ? <Check size={14} /> : <Copy size={13} />}
         </div>
       </div>

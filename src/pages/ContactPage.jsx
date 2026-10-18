@@ -27,7 +27,7 @@ export default function ContactPage() {
       <div className="chroma-card" style={{ padding: 36 }}>
         {submitted ? (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#DCFCE7', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--badge-success-bg)', color: 'var(--badge-success-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
               <CheckCircle2 size={32} />
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: 8 }}>

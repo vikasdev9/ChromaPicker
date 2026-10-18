@@ -144,9 +144,9 @@ export default function GradientGeneratorPage() {
             <button
               onClick={handleDownloadSvg}
               style={{
-                background: '#FFFFFF',
-                color: '#0F172A',
-                border: 'none',
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
                 padding: '8px 14px',
                 borderRadius: 20,
                 fontSize: '0.8rem',

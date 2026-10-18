@@ -202,7 +202,7 @@ export default function ContrastCheckerPage() {
                 borderRadius: 12
               }}
             >
-              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#DC2626', marginBottom: 4 }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--badge-error-text)', marginBottom: 4 }}>
                 Contrast fails WCAG AA standards
               </div>
               <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: 10 }}>
@@ -227,7 +227,7 @@ export default function ContrastCheckerPage() {
             <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
               Calculated Ratio
             </div>
-            <div style={{ fontSize: '3.5rem', fontWeight: 800, margin: '8px 0', color: rating.aaNormal ? '#047857' : '#B91C1C' }}>
+            <div style={{ fontSize: '3.5rem', fontWeight: 800, margin: '8px 0', color: rating.aaNormal ? 'var(--badge-success-text)' : 'var(--badge-error-text)' }}>
               {ratio} : 1
             </div>
 
@@ -236,7 +236,7 @@ export default function ContrastCheckerPage() {
               {/* AA Normal */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AA Normal (4.5:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaNormal ? '#047857' : '#B91C1C' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaNormal ? 'var(--badge-success-text)' : 'var(--badge-error-text)' }}>
                   {rating.aaNormal ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaNormal ? 'Pass' : 'Fail'}</span>
                 </div>
@@ -245,7 +245,7 @@ export default function ContrastCheckerPage() {
               {/* AA Large */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AA Large (3.0:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaLarge ? '#047857' : '#B91C1C' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaLarge ? 'var(--badge-success-text)' : 'var(--badge-error-text)' }}>
                   {rating.aaLarge ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaLarge ? 'Pass' : 'Fail'}</span>
                 </div>
@@ -254,7 +254,7 @@ export default function ContrastCheckerPage() {
               {/* AAA Normal */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AAA Normal (7.0:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaNormal ? '#047857' : '#B91C1C' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaNormal ? 'var(--badge-success-text)' : 'var(--badge-error-text)' }}>
                   {rating.aaaNormal ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaaNormal ? 'Pass' : 'Fail'}</span>
                 </div>
@@ -263,7 +263,7 @@ export default function ContrastCheckerPage() {
               {/* AAA Large */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AAA Large (4.5:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaLarge ? '#047857' : '#B91C1C' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaLarge ? 'var(--badge-success-text)' : 'var(--badge-error-text)' }}>
                   {rating.aaaLarge ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaaLarge ? 'Pass' : 'Fail'}</span>
                 </div>

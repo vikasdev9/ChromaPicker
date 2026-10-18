@@ -46,7 +46,7 @@ export default function ToolsMegaMenu({ isOpen, onClose }) {
       <div className="mega-menu-dropdown" ref={menuRef} role="dialog" aria-label="Tools Navigation">
         {/* Banner Link matching Screenshot 2 */}
         <Link to="/image-color-extractor" className="mega-menu-banner" onClick={onClose}>
-          <div className="mega-item-icon" style={{ background: '#2596BE', color: '#FFFFFF' }}>
+          <div className="mega-item-icon" style={{ background: 'var(--color-accent-blue)', color: 'var(--text-inverse)' }}>
             <Pipette size={18} />
           </div>
           <div style={{ flex: 1 }}>

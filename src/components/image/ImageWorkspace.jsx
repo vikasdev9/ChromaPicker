@@ -396,9 +396,10 @@ export default function ImageWorkspace() {
       className="chroma-card"
       style={{
         marginBottom: 40,
-        background: '#FFFFFF',
+        background: 'var(--bg-card)',
         borderRadius: 20,
-        boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(226, 232, 240, 0.8)',
+        border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-lg)',
         overflow: 'hidden'
       }}
     >
@@ -428,7 +429,7 @@ export default function ImageWorkspace() {
               justifyContent: 'space-between',
               padding: '12px clamp(12px, 2.5vw, 20px)',
               borderBottom: '1px solid var(--border-color)',
-              background: '#FFFFFF',
+              background: 'var(--bg-card)',
               flexWrap: 'wrap',
               gap: 8
             }}
@@ -547,7 +548,7 @@ export default function ImageWorkspace() {
               cursor: 'crosshair',
               position: 'relative',
               minHeight: 'clamp(260px, 45vh, 440px)',
-              background: '#F1F5F9',
+              background: 'var(--bg-preview)',
               userSelect: 'none',
               touchAction: 'none'
             }}
@@ -647,7 +648,7 @@ export default function ImageWorkspace() {
             display: 'flex',
             flexDirection: 'column',
             gap: 16,
-            background: '#FFFFFF'
+            background: 'var(--bg-card)'
           }}
         >
           {/* Header with Title and Favorite button matching Screenshot 1 */}
@@ -794,7 +795,7 @@ export default function ImageWorkspace() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: copiedKey === item.label ? '#10B981' : 'var(--text-secondary)',
+                    color: copiedKey === item.label ? 'var(--badge-success-text)' : 'var(--text-secondary)',
                     padding: 6,
                     borderRadius: 6,
                     display: 'flex',
@@ -851,7 +852,7 @@ export default function ImageWorkspace() {
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: contrastWhite >= 4.5 ? '#047857' : '#B91C1C',
+                      color: contrastWhite >= 4.5 ? 'var(--badge-success-text)' : 'var(--badge-error-text)',
                       whiteSpace: 'nowrap'
                     }}
                   >
@@ -890,7 +891,7 @@ export default function ImageWorkspace() {
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: contrastBlack >= 4.5 ? '#047857' : '#B91C1C',
+                      color: contrastBlack >= 4.5 ? 'var(--badge-success-text)' : 'var(--badge-error-text)',
                       whiteSpace: 'nowrap'
                     }}
                   >
@@ -919,8 +920,8 @@ export default function ImageWorkspace() {
                     padding: '8px 8px',
                     borderRadius: 7,
                     border: 'none',
-                    background: eyedropperMode === 'pick' ? '#FFFFFF' : 'transparent',
-                    boxShadow: eyedropperMode === 'pick' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                    background: eyedropperMode === 'pick' ? 'var(--bg-card)' : 'transparent',
+                    boxShadow: eyedropperMode === 'pick' ? 'var(--shadow-sm)' : 'none',
                     color: eyedropperMode === 'pick' ? 'var(--color-accent-blue)' : 'var(--text-secondary)',
                     fontWeight: 700,
                     fontSize: '0.76rem',
@@ -942,8 +943,8 @@ export default function ImageWorkspace() {
                     padding: '8px 8px',
                     borderRadius: 7,
                     border: 'none',
-                    background: eyedropperMode === 'live' ? '#FFFFFF' : 'transparent',
-                    boxShadow: eyedropperMode === 'live' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                    background: eyedropperMode === 'live' ? 'var(--bg-card)' : 'transparent',
+                    boxShadow: eyedropperMode === 'live' ? 'var(--shadow-sm)' : 'none',
                     color: eyedropperMode === 'live' ? 'var(--color-accent-blue)' : 'var(--text-secondary)',
                     fontWeight: 700,
                     fontSize: '0.76rem',
@@ -999,7 +1000,7 @@ export default function ImageWorkspace() {
               padding: '12px 18px',
               borderRadius: 12,
               background: 'var(--color-accent-blue)',
-              color: '#FFFFFF',
+              color: 'var(--text-inverse)',
               border: 'none',
               fontSize: '0.94rem',
               fontWeight: 700,
@@ -1086,7 +1087,7 @@ export default function ImageWorkspace() {
               marginTop: 2
             }}
           >
-            <ShieldCheck size={14} color="#10B981" />
+            <ShieldCheck size={14} color="var(--badge-success-text)" />
             <span>Image stays in your browser. No data is uploaded.</span>
           </div>
         </div>
@@ -1097,7 +1098,7 @@ export default function ImageWorkspace() {
         className="workspace-palette-section"
         style={{
           borderTop: '1px solid var(--border-color)',
-          background: '#FFFFFF'
+          background: 'var(--bg-card)'
         }}
       >
         {/* Palette Section Header with Toolbar matching Screenshot 1 */}
@@ -1190,7 +1191,7 @@ export default function ImageWorkspace() {
                     top: 'calc(100% + 6px)',
                     right: 0,
                     width: 170,
-                    background: '#FFFFFF',
+                    background: 'var(--bg-card)',
                     border: '1px solid var(--border-color)',
                     borderRadius: 12,
                     boxShadow: 'var(--shadow-lg)',
@@ -1216,7 +1217,7 @@ export default function ImageWorkspace() {
                       style={{
                         padding: '8px 12px',
                         border: 'none',
-                        background: sortBy === item.id ? 'rgba(37, 150, 190, 0.08)' : 'transparent',
+                        background: sortBy === item.id ? 'var(--bg-card-hover)' : 'transparent',
                         color: sortBy === item.id ? 'var(--color-accent-blue)' : 'var(--text-primary)',
                         fontWeight: sortBy === item.id ? 700 : 500,
                         fontSize: '0.82rem',
@@ -1264,8 +1265,8 @@ export default function ImageWorkspace() {
                   padding: '7px 14px',
                   borderRadius: 9,
                   border: 'none',
-                  background: '#0F172A',
-                  color: '#FFFFFF',
+                  background: 'var(--btn-primary-bg)',
+                  color: 'var(--btn-primary-text)',
                   fontSize: '0.82rem',
                   fontWeight: 600,
                   display: 'flex',
@@ -1286,7 +1287,7 @@ export default function ImageWorkspace() {
                     top: 'calc(100% + 6px)',
                     right: 0,
                     width: 220,
-                    background: '#FFFFFF',
+                    background: 'var(--bg-card)',
                     border: '1px solid var(--border-color)',
                     borderRadius: 12,
                     boxShadow: 'var(--shadow-lg)',
@@ -1353,7 +1354,7 @@ export default function ImageWorkspace() {
                       borderRadius: 12,
                       backgroundColor: colorItem.hex,
                       boxShadow: isSelected
-                        ? '0 0 0 3px var(--color-accent-blue), 0 0 0 5px rgba(255,255,255,0.9), var(--shadow-md)'
+                        ? '0 0 0 3px var(--color-accent-blue), 0 0 0 5px var(--bg-card), var(--shadow-md)'
                         : '0 2px 6px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(0,0,0,0.06)',
                       transform: isSelected ? 'scale(1.08)' : 'scale(1)',
                       zIndex: isSelected ? 3 : 1,
@@ -1495,7 +1496,7 @@ export default function ImageWorkspace() {
                     padding: '6px 14px',
                     borderRadius: 20,
                     border: '1px solid var(--border-color)',
-                    background: '#FFFFFF',
+                    background: 'var(--bg-card)',
                     color: 'var(--text-primary)',
                     fontSize: '0.78rem',
                     fontWeight: 700,
