@@ -31,6 +31,101 @@ export default function AdSlot({ position = 'inline', onRemoveAdsClick }) {
     );
   }
 
+  // 0. Modal Top Ad Slot (Dedicated, responsive, non-intrusive)
+  if (position === 'modal-top') {
+    if (!isVisible) {
+      return null;
+    }
+
+    return (
+      <div
+        className="ad-modal-top"
+        style={{
+          width: '100%',
+          minHeight: 44,
+          boxSizing: 'border-box',
+          padding: '6px 16px',
+          background: 'var(--modal-tab-bar-bg)',
+          borderBottom: '1px solid var(--modal-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          fontSize: '0.78rem',
+          color: 'var(--modal-text-secondary)',
+          position: 'relative'
+        }}
+        role="complementary"
+        aria-label="Modal Advertisement"
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <span
+            style={{
+              fontSize: '0.62rem',
+              fontWeight: 800,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              padding: '2px 6px',
+              borderRadius: 4,
+              background: 'var(--modal-border)',
+              color: 'var(--modal-text-muted)',
+              flexShrink: 0
+            }}
+          >
+            SPONSORED
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+            <Sparkles size={14} style={{ color: 'var(--modal-accent)', flexShrink: 0 }} />
+            <span
+              style={{
+                color: 'var(--modal-text-primary)',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              ChromaPick Pro — High-res color extraction & zero ads
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <button
+            onClick={onRemoveAdsClick}
+            className="btn-gold"
+            style={{
+              padding: '4px 10px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              borderRadius: 6,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Go Pro
+          </button>
+          <button
+            onClick={() => setIsVisible(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--modal-text-muted)',
+              cursor: 'pointer',
+              padding: 4,
+              display: 'flex',
+              alignItems: 'center',
+              borderRadius: 4
+            }}
+            aria-label="Dismiss advertisement"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // 1. Top Leaderboard Banner matching Reference Screenshot ("Stitch it all together with Firefly Pro")
   if (position === 'top-leaderboard') {
     return (

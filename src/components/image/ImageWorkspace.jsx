@@ -18,7 +18,9 @@ import {
   HelpCircle,
   Eye,
   Palette,
-  ArrowUpDown
+  ArrowUpDown,
+  Upload,
+  Sparkles
 } from 'lucide-react';
 import { usePalette } from '../../context/PaletteContext';
 import { useToast } from '../../context/ToastContext';
@@ -61,7 +63,8 @@ export default function ImageWorkspace() {
     removeColorFromPalette,
     favorites,
     toggleFavorite,
-    triggerExtractionWithCurrent
+    triggerExtractionWithCurrent,
+    loadSampleImage
   } = usePalette();
 
   const containerRef = useRef(null);
@@ -361,7 +364,9 @@ export default function ImageWorkspace() {
   // Export handlers
   const handleExport = async (format) => {
     setIsExportMenuOpen(false);
-    const paletteName = `Chromapick-${currentImage.filename.replace(/\.[^/.]+$/, '')}`;
+    const paletteName = currentImage?.filename
+      ? `Chromapick-${currentImage.filename.replace(/\.[^/.]+$/, '')}`
+      : 'Chromapick-Palette';
     const colors = sortedPalette;
 
     if (format === 'json') {
@@ -395,6 +400,8 @@ export default function ImageWorkspace() {
     <div
       className="chroma-card"
       style={{
+        width: '100%',
+        maxWidth: '100%',
         marginBottom: 40,
         background: 'var(--bg-card)',
         borderRadius: 20,
@@ -417,7 +424,8 @@ export default function ImageWorkspace() {
             background: 'var(--bg-card-subtle)',
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            minWidth: 0
           }}
         >
           {/* Image Toolbar Header matching Screenshot 1 */}
@@ -445,26 +453,28 @@ export default function ImageWorkspace() {
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  maxWidth: 'clamp(90px, 25vw, 220px)'
+                  maxWidth: 'clamp(100px, 28vw, 320px)'
                 }}
-                title={currentImage.filename}
+                title={currentImage?.filename || 'No image loaded'}
               >
-                {currentImage.filename}
+                {currentImage?.filename || 'No image loaded'}
               </span>
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  color: 'var(--text-muted)',
-                  background: 'var(--bg-card-subtle)',
-                  padding: '2px 6px',
-                  borderRadius: 6,
-                  border: '1px solid var(--border-color)',
-                  flexShrink: 0,
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {currentImage.width}×{currentImage.height}
-              </span>
+              {currentImage?.width && currentImage?.height ? (
+                <span
+                  style={{
+                    fontSize: '0.7rem',
+                    color: 'var(--text-muted)',
+                    background: 'var(--bg-card-subtle)',
+                    padding: '2px 6px',
+                    borderRadius: 6,
+                    border: '1px solid var(--border-color)',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {currentImage.width}×{currentImage.height}
+                </span>
+              ) : null}
             </div>
 
             {/* Viewport & Image Action Controls matching Screenshot 1 */}
@@ -545,9 +555,8 @@ export default function ImageWorkspace() {
               justifyContent: 'center',
               padding: 'clamp(8px, 2.5vw, 24px)',
               overflow: 'hidden',
-              cursor: 'crosshair',
+              cursor: currentImage?.src ? 'crosshair' : 'default',
               position: 'relative',
-              minHeight: 'clamp(260px, 45vh, 440px)',
               background: 'var(--bg-preview)',
               userSelect: 'none',
               touchAction: 'none'
@@ -559,62 +568,123 @@ export default function ImageWorkspace() {
             onTouchEnd={handleTouchEnd}
             onClick={handleImageClick}
           >
-            {/* Large Circular Magnifier Loupe with Pixel Grid & Floating Card matching Screenshot 1 */}
-            <MagnifierLoupe
-              x={loupeState.x}
-              y={loupeState.y}
-              actualX={loupeState.actualX}
-              actualY={loupeState.actualY}
-              sourceCanvasRef={canvasRef}
-              pixelColor={loupeState.pixelColor}
-              visible={loupeState.visible}
-              containerWidth={loupeState.containerWidth}
-              containerHeight={loupeState.containerHeight}
-              magnification={magnification}
-              isTouch={loupeState.isTouch}
-              onCopy={(hex) => showToast(`Copied ${hex}`, 'success')}
-            />
+            {!currentImage?.src ? (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '48px 24px',
+                  textAlign: 'center',
+                  gap: 14
+                }}
+              >
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: '50%',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-accent-blue)',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                >
+                  <ImageIcon size={32} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+                    No image loaded
+                  </h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: 360, margin: '0 auto', lineHeight: 1.5 }}>
+                    Upload or paste an image, or try one of our curated sample images to inspect colors and extract palettes.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 4 }}>
+                  <button
+                    onClick={() => setIsSelectModalOpen(true)}
+                    className="btn-primary"
+                    style={{ padding: '9px 18px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10 }}
+                  >
+                    <Upload size={15} />
+                    <span>Upload Image</span>
+                  </button>
+                  <button
+                    onClick={() => loadSampleImage('yellow-portrait')}
+                    className="btn-secondary"
+                    style={{ padding: '9px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10 }}
+                  >
+                    <Sparkles size={15} color="var(--color-accent-blue)" />
+                    <span>Try Sample</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Large Circular Magnifier Loupe with Pixel Grid & Floating Card matching Screenshot 1 */}
+                <MagnifierLoupe
+                  x={loupeState.x}
+                  y={loupeState.y}
+                  actualX={loupeState.actualX}
+                  actualY={loupeState.actualY}
+                  sourceCanvasRef={canvasRef}
+                  pixelColor={loupeState.pixelColor}
+                  visible={loupeState.visible}
+                  containerWidth={loupeState.containerWidth}
+                  containerHeight={loupeState.containerHeight}
+                  magnification={magnification}
+                  isTouch={loupeState.isTouch}
+                  onCopy={(hex) => showToast(`Copied ${hex}`, 'success')}
+                />
 
-            {/* Main Interactive Source Image */}
-            <img
-              ref={imageRef}
-              src={currentImage.src}
-              alt={currentImage.title || 'Source image for palette extraction'}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'contain',
-                borderRadius: 12,
-                boxShadow: '0 8px 24px -4px rgba(0,0,0,0.12)',
-                transform: `scale(${imageZoom})`,
-                transition: 'transform 0.15s ease-out',
-                pointerEvents: 'none'
-              }}
-            />
+                {/* Main Interactive Source Image */}
+                <img
+                  ref={imageRef}
+                  src={currentImage.src}
+                  alt={currentImage.title || 'Source image for palette extraction'}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    width: 'auto',
+                    height: 'auto',
+                    objectFit: 'contain',
+                    borderRadius: 12,
+                    boxShadow: '0 8px 24px -4px rgba(0,0,0,0.12)',
+                    transform: `scale(${imageZoom})`,
+                    transition: 'transform 0.15s ease-out',
+                    pointerEvents: 'none'
+                  }}
+                />
 
-            {/* Instruction Overlay Pill at bottom left matching Screenshot 1 */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 16,
-                left: 16,
-                background: 'rgba(15, 23, 42, 0.85)',
-                backdropFilter: 'blur(6px)',
-                color: '#FFFFFF',
-                fontSize: '0.74rem',
-                fontWeight: 600,
-                padding: '6px 14px',
-                borderRadius: 20,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                pointerEvents: 'none'
-              }}
-            >
-              <span style={{ fontSize: '0.9rem' }}>🖱️</span>
-              <span>Move to inspect · Click to pick · Drag on mobile</span>
-            </div>
+                {/* Instruction Overlay Pill at bottom left matching Screenshot 1 */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 16,
+                    left: 16,
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    backdropFilter: 'blur(6px)',
+                    color: '#FFFFFF',
+                    fontSize: '0.74rem',
+                    fontWeight: 600,
+                    padding: '6px 14px',
+                    borderRadius: 20,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    pointerEvents: 'none'
+                  }}
+                >
+                  <span style={{ fontSize: '0.9rem' }}>🖱️</span>
+                  <span>Move to inspect · Click to pick · Drag on mobile</span>
+                </div>
+              </>
+            )}
 
             {/* Drag & Drop Overlay */}
             {isDragOver && (
@@ -644,11 +714,12 @@ export default function ImageWorkspace() {
         <div
           className="workspace-right-col"
           style={{
-            padding: '24px 28px',
+            padding: 'clamp(18px, 2vw, 24px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 16,
-            background: 'var(--bg-card)'
+            gap: 14,
+            background: 'var(--bg-card)',
+            minWidth: 0
           }}
         >
           {/* Header with Title and Favorite button matching Screenshot 1 */}
@@ -691,7 +762,7 @@ export default function ImageWorkspace() {
               justifyContent: 'space-between',
               boxShadow: 'var(--shadow-sm), inset 0 0 0 1px rgba(0,0,0,0.08)',
               transition: 'background-color 0.2s ease',
-              minHeight: 88
+              minHeight: 80
             }}
           >
             {/* Left: Large HEX and Color Name */}
@@ -748,7 +819,7 @@ export default function ImageWorkspace() {
           </div>
 
           {/* Color Values Table (HEX, RGB, HSL, CMYK) with Copy Buttons matching Screenshot 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
             {[
               { label: 'HEX', value: activeHex },
               { label: 'RGB', value: rgbString },
@@ -761,16 +832,16 @@ export default function ImageWorkspace() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '8px 12px',
+                  padding: '7px 10px',
                   borderRadius: 10,
                   background: 'var(--bg-card-subtle)',
                   border: '1px solid var(--border-color)',
-                  fontSize: '0.85rem',
+                  fontSize: '0.84rem',
                   gap: 8,
                   minWidth: 0
                 }}
               >
-                <span style={{ fontWeight: 700, color: 'var(--text-secondary)', width: 44, flexShrink: 0 }}>
+                <span style={{ fontWeight: 700, color: 'var(--text-secondary)', width: 42, flexShrink: 0 }}>
                   {item.label}
                 </span>
                 <span
@@ -783,7 +854,8 @@ export default function ImageWorkspace() {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
-                    fontSize: 'clamp(0.74rem, 2.4vw, 0.85rem)'
+                    fontSize: '0.82rem',
+                    letterSpacing: '-0.01em'
                   }}
                   title={item.value}
                 >
@@ -796,27 +868,27 @@ export default function ImageWorkspace() {
                     border: 'none',
                     cursor: 'pointer',
                     color: copiedKey === item.label ? 'var(--badge-success-text)' : 'var(--text-secondary)',
-                    padding: 6,
+                    padding: 4,
                     borderRadius: 6,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minWidth: 36,
-                    minHeight: 36,
+                    width: 30,
+                    height: 30,
                     flexShrink: 0
                   }}
                   title={`Copy ${item.label}`}
                   aria-label={`Copy ${item.label}`}
                 >
-                  {copiedKey === item.label ? <Check size={15} /> : <Copy size={15} />}
+                  {copiedKey === item.label ? <Check size={14} /> : <Copy size={14} />}
                 </button>
               </div>
             ))}
           </div>
 
           {/* Contrast Ratio (WCAG) Section matching Screenshot 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Contrast Ratio (WCAG)
             </span>
 
@@ -826,8 +898,8 @@ export default function ImageWorkspace() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  padding: '10px 12px',
+                  gap: 8,
+                  padding: '8px 10px',
                   borderRadius: 10,
                   border: '1px solid var(--border-color)',
                   background: 'var(--bg-card-subtle)',
@@ -836,8 +908,8 @@ export default function ImageWorkspace() {
               >
                 <div
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 24,
+                    height: 24,
                     borderRadius: '50%',
                     backgroundColor: '#FFFFFF',
                     border: '1.5px solid #CBD5E1',
@@ -845,18 +917,18 @@ export default function ImageWorkspace() {
                   }}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>
                     {contrastWhite}:1
                   </span>
                   <span
                     style={{
                       fontSize: '0.68rem',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       color: contrastWhite >= 4.5 ? 'var(--badge-success-text)' : 'var(--badge-error-text)',
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    White text: {whiteRating}
+                    White: {whiteRating}
                   </span>
                 </div>
               </div>
@@ -866,8 +938,8 @@ export default function ImageWorkspace() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
-                  padding: '10px 12px',
+                  gap: 8,
+                  padding: '8px 10px',
                   borderRadius: 10,
                   border: '1px solid var(--border-color)',
                   background: 'var(--bg-card-subtle)',
@@ -876,37 +948,37 @@ export default function ImageWorkspace() {
               >
                 <div
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 24,
+                    height: 24,
                     borderRadius: '50%',
                     backgroundColor: '#000000',
                     flexShrink: 0
                   }}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>
                     {contrastBlack}:1
                   </span>
                   <span
                     style={{
                       fontSize: '0.68rem',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       color: contrastBlack >= 4.5 ? 'var(--badge-success-text)' : 'var(--badge-error-text)',
                       whiteSpace: 'nowrap'
                     }}
                   >
-                    Black text: {blackRating}
+                    Black: {blackRating}
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Eyedropper Mode & Zoom Level Controls matching Screenshot 1 */}
+          {/* Eyedropper Mode & Zoom Level Controls */}
           <div className="workspace-controls-row">
             {/* Eyedropper Mode Switcher */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Eyedropper Mode
                 </span>
@@ -917,7 +989,7 @@ export default function ImageWorkspace() {
                   onClick={() => setEyedropperMode('pick')}
                   style={{
                     flex: 1,
-                    padding: '8px 8px',
+                    padding: '7px 8px',
                     borderRadius: 7,
                     border: 'none',
                     background: eyedropperMode === 'pick' ? 'var(--bg-card)' : 'transparent',
@@ -930,7 +1002,7 @@ export default function ImageWorkspace() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 5,
-                    minHeight: 38
+                    minHeight: 36
                   }}
                 >
                   <Pipette size={13} />
@@ -940,7 +1012,7 @@ export default function ImageWorkspace() {
                   onClick={() => setEyedropperMode('live')}
                   style={{
                     flex: 1,
-                    padding: '8px 8px',
+                    padding: '7px 8px',
                     borderRadius: 7,
                     border: 'none',
                     background: eyedropperMode === 'live' ? 'var(--bg-card)' : 'transparent',
@@ -953,7 +1025,7 @@ export default function ImageWorkspace() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 5,
-                    minHeight: 38
+                    minHeight: 36
                   }}
                 >
                   <Eye size={13} />
@@ -964,16 +1036,16 @@ export default function ImageWorkspace() {
 
             {/* Magnifier Zoom Level Slider */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Zoom Level
                 </span>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--color-accent-blue)', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-accent-blue)', fontFamily: 'var(--font-mono)' }}>
                   {magnification}×
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>2×</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '2px 0' }}>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>2×</span>
                 <input
                   type="range"
                   min="2"
@@ -981,10 +1053,18 @@ export default function ImageWorkspace() {
                   step="1"
                   value={magnification}
                   onChange={(e) => setMagnification(Number(e.target.value))}
-                  style={{ flex: 1, cursor: 'pointer', accentColor: 'var(--color-accent-blue)', minHeight: 28 }}
+                  style={{
+                    flex: 1,
+                    width: '100%',
+                    minWidth: 0,
+                    cursor: 'pointer',
+                    accentColor: 'var(--color-accent-blue)',
+                    minHeight: 26,
+                    margin: 0
+                  }}
                   aria-label="Magnifier Zoom Level"
                 />
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>32×</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>32×</span>
               </div>
             </div>
           </div>
@@ -1098,7 +1178,8 @@ export default function ImageWorkspace() {
         className="workspace-palette-section"
         style={{
           borderTop: '1px solid var(--border-color)',
-          background: 'var(--bg-card)'
+          background: 'var(--bg-card)',
+          width: '100%'
         }}
       >
         {/* Palette Section Header with Toolbar matching Screenshot 1 */}

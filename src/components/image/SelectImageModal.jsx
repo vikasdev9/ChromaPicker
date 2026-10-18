@@ -9,14 +9,25 @@ import {
   Search,
   ShieldCheck,
   Loader2,
-  Monitor
+  Monitor,
+  RotateCcw
 } from 'lucide-react';
 import { usePalette } from '../../context/PaletteContext';
 import { useToast } from '../../context/ToastContext';
 import { SAMPLE_IMAGES } from '../../data/sampleImages';
+import AdSlot from '../ads/AdSlot';
+import ProModal from '../common/ProModal';
 
 export default function SelectImageModal({ isOpen, onClose }) {
-  const { handleFileUpload, loadSampleImage, setCurrentImage, processImageExtraction, extractionOptions, setSelectedColor, addColorToPalette } = usePalette();
+  const {
+    handleFileUpload,
+    loadSampleImage,
+    setCurrentImage,
+    processImageExtraction,
+    extractionOptions,
+    setSelectedColor,
+    addColorToPalette
+  } = usePalette();
   const { showToast } = useToast();
 
   const [activeTab, setActiveTab] = useState('upload'); // 'upload' | 'screen' | 'web' | 'url' | 'paste' | 'search'
@@ -26,8 +37,19 @@ export default function SelectImageModal({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('all');
+  const [isProModalOpen, setIsProModalOpen] = useState(false);
 
   const fileInputRef = useRef(null);
+  const tabRefs = useRef([]);
+
+  const TABS = [
+    { id: 'upload', label: 'Upload image', icon: Upload },
+    { id: 'screen', label: 'Color on Screen', icon: Pipette },
+    { id: 'web', label: 'Website URL', icon: Globe },
+    { id: 'url', label: 'Image URL', icon: LinkIcon },
+    { id: 'paste', label: 'Paste Clipboard', icon: Clipboard },
+    { id: 'search', label: 'Search', icon: Search }
+  ];
 
   // Close on Escape key
   useEffect(() => {
@@ -61,6 +83,21 @@ export default function SelectImageModal({ isOpen, onClose }) {
   }, [isOpen, handleFileUpload, showToast, onClose]);
 
   if (!isOpen) return null;
+
+  // Keyboard navigation for tablist
+  const handleTabKeyDown = (e, index) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      const nextIndex = (index + 1) % TABS.length;
+      setActiveTab(TABS[nextIndex].id);
+      tabRefs.current[nextIndex]?.focus();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prevIndex = (index - 1 + TABS.length) % TABS.length;
+      setActiveTab(TABS[prevIndex].id);
+      tabRefs.current[prevIndex]?.focus();
+    }
+  };
 
   // Local helper to load any image URL into a local clean Data URL (preventing tainted canvas)
   const loadImageFromUrl = async (url, title = 'Web Image') => {
@@ -248,7 +285,7 @@ export default function SelectImageModal({ isOpen, onClose }) {
     {
       id: 'minimal-architecture',
       title: 'Modern Architecture Geometry',
-      category: 'minimal',
+      category: 'architecture',
       url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80',
       colors: ['#E2E8F0', '#334155', '#94A3B8']
     }
@@ -262,137 +299,77 @@ export default function SelectImageModal({ isOpen, onClose }) {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.72)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 200,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'clamp(8px, 2.5vw, 20px)',
-        animation: 'fadeIn 0.2s ease-out'
-      }}
+      className="select-image-overlay"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="chroma-card"
+        className="select-image-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="select-image-modal-title"
-        style={{
-          width: '100%',
-          maxWidth: 820,
-          background: 'var(--bg-card)',
-          borderRadius: 20,
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-color)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '90vh'
-        }}
       >
-        {/* Modal Header matching Screenshot 1 */}
-        <div
-          style={{
-            padding: '20px 24px 16px',
-            borderBottom: '1px solid var(--border-color)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'relative'
-          }}
-        >
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <h2
-              id="select-image-modal-title"
-              style={{
-                fontSize: '1.25rem',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: 'var(--text-primary)',
-                margin: 0
-              }}
-            >
-              SELECT IMAGE
-            </h2>
-          </div>
+        {/* Modal Header */}
+        <div className="select-image-header">
+          <h2 id="select-image-modal-title">
+            SELECT IMAGE
+          </h2>
           <button
             onClick={onClose}
-            className="theme-toggle-btn"
-            style={{
-              position: 'absolute',
-              right: 20,
-              width: 34,
-              height: 34,
-              borderRadius: '50%'
-            }}
+            className="select-image-close-btn"
             aria-label="Close dialog"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        {/* Modal Navigation Tabs matching Screenshot 1 */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '10px 18px',
-            background: 'var(--bg-card-subtle)',
-            borderBottom: '1px solid var(--border-color)',
-            overflowX: 'auto',
-            scrollbarWidth: 'none'
-          }}
-        >
-          {[
-            { id: 'upload', label: 'Upload image', icon: Upload },
-            { id: 'screen', label: 'Color on your Screen', icon: Pipette },
-            { id: 'web', label: 'Website URL', icon: Globe },
-            { id: 'url', label: 'Image URL', icon: LinkIcon },
-            { id: 'paste', label: 'Paste clipboard', icon: Clipboard },
-            { id: 'search', label: 'Search', icon: Search }
-          ].map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 14px',
-                  borderRadius: 10,
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                  border: 'none',
-                  background: isActive ? 'var(--bg-card)' : 'transparent',
-                  color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  boxShadow: isActive ? '0 2px 6px rgba(0,0,0,0.08), 0 0 0 1px var(--border-color)' : 'none',
-                  transition: 'var(--transition-normal)'
-                }}
-              >
-                <Icon size={15} color={isActive ? 'var(--color-accent-blue)' : 'currentColor'} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        {/* Dedicated Top Advertisement Section */}
+        <div className="select-image-ad-container">
+          <AdSlot position="modal-top" onRemoveAdsClick={() => setIsProModalOpen(true)} />
+        </div>
+
+        {/* Modal Navigation Tabs */}
+        <div className="select-image-tabs-wrapper">
+          <div
+            className="select-image-tabs"
+            role="tablist"
+            aria-label="Image selection sources"
+          >
+            {TABS.map((tab, idx) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  ref={el => (tabRefs.current[idx] = el)}
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={isActive}
+                  aria-controls={`tabpanel-${tab.id}`}
+                  tabIndex={isActive ? 0 : -1}
+                  onClick={() => setActiveTab(tab.id)}
+                  onKeyDown={(e) => handleTabKeyDown(e, idx)}
+                  className={`select-image-tab-btn ${isActive ? 'active' : ''}`}
+                >
+                  <Icon size={15} style={{ color: isActive ? 'var(--modal-accent)' : 'inherit' }} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Modal Body Tab Content */}
-        <div style={{ padding: '28px 32px', overflowY: 'auto', flex: 1 }}>
-          {/* TAB 1: Upload image matching Screenshot 1 */}
+        <div
+          className="select-image-body"
+          role="tabpanel"
+          id={`tabpanel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+        >
+          {/* TAB 1: Upload image */}
           {activeTab === 'upload' && (
-            <div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -421,74 +398,50 @@ export default function SelectImageModal({ isOpen, onClose }) {
                     onClose();
                   }
                 }}
-                style={{
-                  border: isDragging ? '2px dashed var(--color-accent-blue)' : '2px dashed var(--border-color)',
-                  background: isDragging ? 'rgba(37, 150, 190, 0.08)' : 'var(--bg-card-subtle)',
-                  borderRadius: 16,
-                  padding: '60px 24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}
+                className={`select-image-dropzone ${isDragging ? 'dragging' : ''}`}
               >
-                <div
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 16,
-                    background: 'var(--bg-card)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 16,
-                    boxShadow: 'var(--shadow-sm)',
-                    border: '1px solid var(--border-color)'
-                  }}
-                >
-                  <Upload size={28} color="var(--color-accent-blue)" />
+                <div className="select-image-dropzone-icon">
+                  <Upload size={24} />
                 </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: 6 }}>
+                <h3 style={{ fontSize: '1.08rem', fontWeight: 700, marginBottom: 6, color: 'var(--modal-text-primary)' }}>
                   Browse or drop image
                 </h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', maxWidth: 360, margin: 0 }}>
+                <p style={{ fontSize: '0.82rem', color: 'var(--modal-text-muted)', maxWidth: 360, margin: 0 }}>
                   Supports PNG, JPG, WebP, SVG, and GIF formats up to 25 MB
                 </p>
               </div>
 
-              {/* Data protection guarantee banner matching Screenshot 1 */}
+              {/* Data protection guarantee banner */}
               <div
                 style={{
-                  marginTop: 24,
+                  marginTop: 18,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 8,
-                  fontSize: '0.85rem',
-                  color: 'var(--text-secondary)'
+                  fontSize: '0.82rem',
+                  color: 'var(--modal-text-secondary)',
+                  textAlign: 'center'
                 }}
               >
-                <ShieldCheck size={18} color="#10B981" />
+                <ShieldCheck size={17} color="#10B981" style={{ flexShrink: 0 }} />
                 <span>
                   We think data protection is important!{' '}
-                  <span style={{ color: '#8B5CF6', fontWeight: 700 }}>No data is sent.</span> The magic happens in your browser.
+                  <strong style={{ color: '#8B5CF6' }}>No data is sent.</strong> The magic happens in your browser.
                 </span>
               </div>
             </div>
           )}
 
-          {/* TAB 2: Color on your Screen */}
+          {/* TAB 2: Color on Screen */}
           {activeTab === 'screen' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div
                 style={{
-                  background: 'var(--bg-card-subtle)',
+                  background: 'var(--modal-input-bg)',
                   borderRadius: 14,
-                  padding: 24,
-                  border: '1px solid var(--border-color)',
+                  padding: '24px 20px',
+                  border: '1px solid var(--modal-border)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -497,43 +450,54 @@ export default function SelectImageModal({ isOpen, onClose }) {
               >
                 <div
                   style={{
-                    width: 54,
-                    height: 54,
+                    width: 50,
+                    height: 50,
                     borderRadius: 14,
                     background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
                     color: '#FFFFFF',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: 14
+                    marginBottom: 12
                   }}
                 >
-                  <Pipette size={26} />
+                  <Pipette size={24} />
                 </div>
 
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 8 }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 6, color: 'var(--modal-text-primary)' }}>
                   Sample Colors Directly Anywhere on Screen
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', maxWidth: 460, marginBottom: 20 }}>
-                  Click below to activate the browser eyedropper and click any pixel inside or outside the browser window.
+                <p style={{ fontSize: '0.84rem', color: 'var(--modal-text-secondary)', maxWidth: 440, marginBottom: 18 }}>
+                  Click below to activate the browser eyedropper and click any pixel inside or outside the browser window, or capture full screen.
                 </p>
 
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
                   <button
                     onClick={handlePickFromScreen}
-                    className="btn-primary"
-                    style={{ padding: '12px 24px', fontSize: '0.92rem' }}
+                    className="select-image-submit-btn"
+                    style={{ flex: '1 1 200px', maxWidth: 260 }}
                   >
-                    <Pipette size={18} />
+                    <Pipette size={16} />
                     <span>Pick Color from Screen</span>
                   </button>
 
                   <button
                     onClick={handleCaptureScreen}
-                    className="btn-secondary"
-                    style={{ padding: '12px 24px', fontSize: '0.92rem' }}
+                    className="select-image-chip"
+                    style={{
+                      height: 42,
+                      padding: '0 20px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: '0.85rem',
+                      borderRadius: 10,
+                      flex: '1 1 200px',
+                      maxWidth: 260,
+                      justifyContent: 'center'
+                    }}
                   >
-                    <Monitor size={18} />
+                    <Monitor size={16} />
                     <span>Capture Screen to Workspace</span>
                   </button>
                 </div>
@@ -541,15 +505,16 @@ export default function SelectImageModal({ isOpen, onClose }) {
 
               <div
                 style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--text-muted)',
+                  fontSize: '0.78rem',
+                  color: 'var(--modal-text-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  textAlign: 'center'
                 }}
               >
-                <ShieldCheck size={16} color="#10B981" />
+                <ShieldCheck size={15} color="#10B981" style={{ flexShrink: 0 }} />
                 <span>Screen eyedropper is supported natively in Chrome, Edge, and Opera browsers.</span>
               </div>
             </div>
@@ -557,24 +522,31 @@ export default function SelectImageModal({ isOpen, onClose }) {
 
           {/* TAB 3: Website URL */}
           {activeTab === 'web' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: 8 }}>
+                <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 600, marginBottom: 8, color: 'var(--modal-text-primary)' }}>
                   Enter website address to extract design palette:
                 </label>
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div className="select-image-form-row">
                   <div style={{ position: 'relative', flex: 1 }}>
                     <Globe
-                      size={18}
-                      style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
+                      size={17}
+                      style={{
+                        position: 'absolute',
+                        left: 14,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: 'var(--modal-text-muted)',
+                        pointerEvents: 'none'
+                      }}
                     />
                     <input
                       type="url"
                       value={websiteUrl}
                       onChange={(e) => setWebsiteUrl(e.target.value)}
                       placeholder="https://example.com or apple.com"
-                      className="search-input"
-                      style={{ paddingLeft: 42, width: '100%' }}
+                      className="select-image-input"
+                      style={{ paddingLeft: 42 }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleWebsiteCapture();
                       }}
@@ -583,20 +555,19 @@ export default function SelectImageModal({ isOpen, onClose }) {
                   <button
                     onClick={() => handleWebsiteCapture()}
                     disabled={isLoading || !websiteUrl.trim()}
-                    className="btn-primary"
-                    style={{ padding: '0 24px', whiteSpace: 'nowrap' }}
+                    className="select-image-submit-btn"
                   >
-                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <span>Capture & Pick</span>}
+                    {isLoading ? <Loader2 size={16} className="animate-spin" /> : <span>Capture & Pick</span>}
                   </button>
                 </div>
               </div>
 
               {/* Quick suggestions */}
-              <div>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                  Popular sites to test:
+              <div style={{ marginTop: 4 }}>
+                <span style={{ fontSize: '0.76rem', color: 'var(--modal-text-muted)', fontWeight: 600, display: 'block', marginBottom: 8 }}>
+                  Popular references to test:
                 </span>
-                <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {['google.com', 'github.com', 'stripe.com', 'dribbble.com', 'wikipedia.org'].map(site => (
                     <button
                       key={site}
@@ -604,16 +575,7 @@ export default function SelectImageModal({ isOpen, onClose }) {
                         setWebsiteUrl(site);
                         handleWebsiteCapture(site);
                       }}
-                      style={{
-                        padding: '5px 12px',
-                        borderRadius: 20,
-                        background: 'var(--bg-card-subtle)',
-                        border: '1px solid var(--border-color)',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        color: 'var(--text-secondary)'
-                      }}
+                      className="select-image-chip"
                     >
                       {site}
                     </button>
@@ -625,24 +587,31 @@ export default function SelectImageModal({ isOpen, onClose }) {
 
           {/* TAB 4: Image URL */}
           {activeTab === 'url' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, marginBottom: 8 }}>
+                <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 600, marginBottom: 8, color: 'var(--modal-text-primary)' }}>
                   Paste direct link to any image:
                 </label>
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div className="select-image-form-row">
                   <div style={{ position: 'relative', flex: 1 }}>
                     <LinkIcon
-                      size={18}
-                      style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
+                      size={17}
+                      style={{
+                        position: 'absolute',
+                        left: 14,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: 'var(--modal-text-muted)',
+                        pointerEvents: 'none'
+                      }}
                     />
                     <input
                       type="url"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                       placeholder="https://images.unsplash.com/photo-..."
-                      className="search-input"
-                      style={{ paddingLeft: 42, width: '100%' }}
+                      className="select-image-input"
+                      style={{ paddingLeft: 42 }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && imageUrl.trim()) loadImageFromUrl(imageUrl.trim());
                       }}
@@ -651,21 +620,20 @@ export default function SelectImageModal({ isOpen, onClose }) {
                   <button
                     onClick={() => imageUrl.trim() && loadImageFromUrl(imageUrl.trim())}
                     disabled={isLoading || !imageUrl.trim()}
-                    className="btn-primary"
-                    style={{ padding: '0 24px', whiteSpace: 'nowrap' }}
+                    className="select-image-submit-btn"
                   >
-                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <span>Load Image</span>}
+                    {isLoading ? <Loader2 size={16} className="animate-spin" /> : <span>Load Image</span>}
                   </button>
                 </div>
               </div>
 
-              {imageUrl.trim() && (
+              {imageUrl.trim() ? (
                 <div
                   style={{
                     borderRadius: 12,
                     overflow: 'hidden',
-                    border: '1px solid var(--border-color)',
-                    background: 'var(--bg-card-subtle)',
+                    border: '1px solid var(--modal-border)',
+                    background: 'var(--modal-input-bg)',
                     padding: 12,
                     textAlign: 'center'
                   }}
@@ -673,9 +641,23 @@ export default function SelectImageModal({ isOpen, onClose }) {
                   <img
                     src={imageUrl}
                     alt="Preview"
-                    style={{ maxHeight: 220, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }}
+                    style={{ maxHeight: 200, maxWidth: '100%', objectFit: 'contain', borderRadius: 8 }}
                     onError={() => showToast('Image preview failed. Ensure URL is valid.', 'error')}
                   />
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: '16px',
+                    borderRadius: 12,
+                    border: '1px dashed var(--modal-border)',
+                    background: 'var(--modal-input-bg)',
+                    fontSize: '0.8rem',
+                    color: 'var(--modal-text-muted)',
+                    textAlign: 'center'
+                  }}
+                >
+                  Supports direct links to JPG, PNG, WebP, SVG, and GIF images hosted publicly on the web.
                 </div>
               )}
             </div>
@@ -685,11 +667,11 @@ export default function SelectImageModal({ isOpen, onClose }) {
           {activeTab === 'paste' && (
             <div
               style={{
-                border: '2px dashed var(--border-color)',
+                border: '2px dashed var(--modal-border)',
                 borderRadius: 16,
-                padding: '48px 24px',
+                padding: '36px 20px',
                 textAlign: 'center',
-                background: 'var(--bg-card-subtle)',
+                background: 'var(--modal-input-bg)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center'
@@ -697,24 +679,53 @@ export default function SelectImageModal({ isOpen, onClose }) {
             >
               <div
                 style={{
-                  width: 58,
-                  height: 58,
-                  borderRadius: 16,
-                  background: 'var(--bg-card)',
+                  width: 52,
+                  height: 52,
+                  borderRadius: 14,
+                  background: 'var(--modal-tab-bar-bg)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: 16,
-                  border: '1px solid var(--border-color)'
+                  marginBottom: 14,
+                  border: '1px solid var(--modal-border)',
+                  color: 'var(--modal-accent)'
                 }}
               >
-                <Clipboard size={26} color="var(--color-accent-blue)" />
+                <Clipboard size={24} />
               </div>
 
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: 8 }}>
-                Press <kbd style={{ padding: '2px 8px', borderRadius: 6, background: 'var(--border-color)', fontFamily: 'var(--font-mono)' }}>Ctrl + V</kbd> (or <kbd style={{ padding: '2px 8px', borderRadius: 6, background: 'var(--border-color)', fontFamily: 'var(--font-mono)' }}>⌘V</kbd>)
+              <h3 style={{ fontSize: '1.08rem', fontWeight: 700, marginBottom: 6, color: 'var(--modal-text-primary)' }}>
+                Press{' '}
+                <kbd
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: 6,
+                    background: 'var(--modal-tab-bar-bg)',
+                    border: '1px solid var(--modal-border)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.85rem',
+                    color: 'var(--modal-text-primary)'
+                  }}
+                >
+                  Ctrl + V
+                </kbd>{' '}
+                (or{' '}
+                <kbd
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: 6,
+                    background: 'var(--modal-tab-bar-bg)',
+                    border: '1px solid var(--modal-border)',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.85rem',
+                    color: 'var(--modal-text-primary)'
+                  }}
+                >
+                  ⌘V
+                </kbd>
+                )
               </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: 440, marginBottom: 20 }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--modal-text-muted)', maxWidth: 420, marginBottom: 18 }}>
                 Copy any screenshot or image from your clipboard and paste it directly into this window to start color picking.
               </p>
 
@@ -738,8 +749,7 @@ export default function SelectImageModal({ isOpen, onClose }) {
                     showToast('Please press Ctrl+V to paste your image.', 'info');
                   }
                 }}
-                className="btn-secondary"
-                style={{ padding: '10px 20px', fontSize: '0.88rem' }}
+                className="select-image-submit-btn"
               >
                 <Clipboard size={16} />
                 <span>Read from Clipboard</span>
@@ -749,133 +759,206 @@ export default function SelectImageModal({ isOpen, onClose }) {
 
           {/* TAB 6: Search Stock Library */}
           {activeTab === 'search' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* Search bar & filter pills */}
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
-                  <Search
-                    size={16}
-                    style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
-                  />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Filter photos..."
-                    className="search-input"
-                    style={{ paddingLeft: 38, width: '100%', height: 38 }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-                  {[
-                    { id: 'all', label: 'All' },
-                    { id: 'portrait', label: 'Portrait' },
-                    { id: 'cars', label: 'Cars' },
-                    { id: 'sunset', label: 'Sunset' },
-                    { id: 'cyberpunk', label: 'Cyberpunk' },
-                    { id: 'nature', label: 'Nature' },
-                    { id: 'minimal', label: 'Architecture' }
-                  ].map(cat => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setSearchCategory(cat.id)}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: 20,
-                        border: '1px solid var(--border-color)',
-                        background: searchCategory === cat.id ? 'var(--color-accent-blue)' : 'var(--bg-card-subtle)',
-                        color: searchCategory === cat.id ? '#FFFFFF' : 'var(--text-secondary)',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Row 1: Search bar with clear button */}
+              <div style={{ position: 'relative', width: '100%' }}>
+                <Search
+                  size={16}
+                  style={{
+                    position: 'absolute',
+                    left: 14,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--modal-text-muted)',
+                    pointerEvents: 'none'
+                  }}
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Filter stock photos by name or mood..."
+                  className="select-image-input"
+                  style={{ paddingLeft: 38, paddingRight: searchQuery ? 38 : 14 }}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    style={{
+                      position: 'absolute',
+                      right: 12,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--modal-text-muted)',
+                      cursor: 'pointer',
+                      padding: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '50%'
+                    }}
+                    aria-label="Clear search input"
+                  >
+                    <X size={15} />
+                  </button>
+                )}
               </div>
 
-              {/* Gallery Grid */}
+              {/* Row 2: Category filter pills */}
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))',
-                  gap: 14,
-                  maxHeight: 380,
-                  overflowY: 'auto'
+                  display: 'flex',
+                  gap: 6,
+                  overflowX: 'auto',
+                  paddingBottom: 4,
+                  scrollbarWidth: 'none',
+                  WebkitOverflowScrolling: 'touch'
                 }}
               >
-                {filteredStock.map(photo => {
-                  const sampleObj = photo.sampleId ? SAMPLE_IMAGES.find(s => s.id === photo.sampleId) : null;
-                  const imgSrc = sampleObj ? sampleObj.dataUrl : photo.url;
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'portrait', label: 'Portrait' },
+                  { id: 'cars', label: 'Cars' },
+                  { id: 'sunset', label: 'Sunset' },
+                  { id: 'cyberpunk', label: 'Cyberpunk' },
+                  { id: 'nature', label: 'Nature' },
+                  { id: 'architecture', label: 'Architecture' }
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSearchCategory(cat.id)}
+                    className={`select-image-pill ${searchCategory === cat.id ? 'active' : ''}`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
 
-                  return (
-                    <div
-                      key={photo.id}
-                      onClick={() => {
-                        if (photo.sampleId) {
-                          loadSampleImage(photo.sampleId);
-                          onClose();
-                        } else if (photo.url) {
-                          loadImageFromUrl(photo.url, photo.title);
-                        }
-                      }}
-                      className="chroma-card"
-                      style={{
-                        cursor: 'pointer',
-                        padding: 8,
-                        borderRadius: 12,
-                        border: '1px solid var(--border-color)',
-                        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.borderColor = 'var(--color-accent-blue)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'none';
-                        e.currentTarget.style.borderColor = 'var(--border-color)';
-                      }}
-                    >
+              {/* Row 3: Gallery Grid or Empty State */}
+              {filteredStock.length > 0 ? (
+                <div className="select-image-stock-grid">
+                  {filteredStock.map(photo => {
+                    const sampleObj = photo.sampleId ? SAMPLE_IMAGES.find(s => s.id === photo.sampleId) : null;
+                    const imgSrc = sampleObj ? sampleObj.dataUrl : photo.url;
+
+                    return (
                       <div
-                        style={{
-                          height: 110,
-                          borderRadius: 8,
-                          overflow: 'hidden',
-                          background: '#0B0F19',
-                          marginBottom: 8
+                        key={photo.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          if (photo.sampleId) {
+                            loadSampleImage(photo.sampleId);
+                            onClose();
+                          } else if (photo.url) {
+                            loadImageFromUrl(photo.url, photo.title);
+                          }
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            if (photo.sampleId) {
+                              loadSampleImage(photo.sampleId);
+                              onClose();
+                            } else if (photo.url) {
+                              loadImageFromUrl(photo.url, photo.title);
+                            }
+                          }
+                        }}
+                        className="select-image-stock-card"
                       >
-                        <img
-                          src={imgSrc}
-                          alt={photo.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      </div>
+                        <div
+                          style={{
+                            height: 105,
+                            borderRadius: 8,
+                            overflow: 'hidden',
+                            background: '#0B0F19',
+                            marginBottom: 8,
+                            position: 'relative'
+                          }}
+                        >
+                          <img
+                            src={imgSrc}
+                            alt={photo.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            loading="lazy"
+                          />
+                        </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                          {photo.title}
-                        </span>
-                        <div style={{ display: 'flex', gap: 3 }}>
-                          {photo.colors.map((c, i) => (
-                            <span
-                              key={i}
-                              style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: c }}
-                            />
-                          ))}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                          <span
+                            style={{
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              color: 'var(--modal-text-primary)',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}
+                          >
+                            {photo.title}
+                          </span>
+                          <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
+                            {photo.colors.map((c, i) => (
+                              <span
+                                key={i}
+                                style={{
+                                  width: 9,
+                                  height: 9,
+                                  borderRadius: '50%',
+                                  backgroundColor: c,
+                                  border: '1px solid rgba(0,0,0,0.2)'
+                                }}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: '36px 20px',
+                    borderRadius: 12,
+                    border: '1px dashed var(--modal-border)',
+                    background: 'var(--modal-input-bg)',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Search size={24} style={{ color: 'var(--modal-text-muted)', marginBottom: 8 }} />
+                  <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--modal-text-primary)', marginBottom: 4 }}>
+                    No photos found
+                  </p>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--modal-text-muted)', maxWidth: 300, marginBottom: 14 }}>
+                    No photos match &ldquo;{searchQuery}&rdquo; in {searchCategory === 'all' ? 'any category' : searchCategory}.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSearchCategory('all');
+                    }}
+                    className="select-image-chip"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <RotateCcw size={13} />
+                    <span>Reset filters</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Pro Modal for Ad Upgrades */}
+      <ProModal isOpen={isProModalOpen} onClose={() => setIsProModalOpen(false)} />
     </div>
   );
 }
