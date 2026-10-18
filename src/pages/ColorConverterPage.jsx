@@ -89,10 +89,12 @@ export default function ColorConverterPage() {
 
           {/* HEX Input */}
           <div>
-            <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>
+            <label htmlFor="hex-color-input" style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>
               HEX Color
             </label>
             <input
+              id="hex-color-input"
+              aria-label="HEX Color"
               type="text"
               value={hexInput}
               onChange={e => handleHexChange(e.target.value)}
@@ -104,13 +106,15 @@ export default function ColorConverterPage() {
 
           {/* RGB Inputs */}
           <div>
-            <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>
               RGB Channels (0 - 255)
-            </label>
+            </span>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
               <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Red</span>
+                <label htmlFor="rgb-red-channel" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Red</label>
                 <input
+                  id="rgb-red-channel"
+                  aria-label="Red channel (0-255)"
                   type="number"
                   min="0"
                   max="255"
@@ -120,8 +124,10 @@ export default function ColorConverterPage() {
                 />
               </div>
               <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Green</span>
+                <label htmlFor="rgb-green-channel" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Green</label>
                 <input
+                  id="rgb-green-channel"
+                  aria-label="Green channel (0-255)"
                   type="number"
                   min="0"
                   max="255"
@@ -131,8 +137,10 @@ export default function ColorConverterPage() {
                 />
               </div>
               <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Blue</span>
+                <label htmlFor="rgb-blue-channel" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Blue</label>
                 <input
+                  id="rgb-blue-channel"
+                  aria-label="Blue channel (0-255)"
                   type="number"
                   min="0"
                   max="255"
@@ -146,13 +154,15 @@ export default function ColorConverterPage() {
 
           {/* HSL Inputs */}
           <div>
-            <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: 6 }}>
               HSL Channels
-            </label>
+            </span>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
               <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Hue (0-360°)</span>
+                <label htmlFor="hsl-hue-channel" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Hue (0-360°)</label>
                 <input
+                  id="hsl-hue-channel"
+                  aria-label="Hue channel (0-360 degrees)"
                   type="number"
                   min="0"
                   max="360"
@@ -162,8 +172,10 @@ export default function ColorConverterPage() {
                 />
               </div>
               <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Sat (0-100%)</span>
+                <label htmlFor="hsl-sat-channel" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Sat (0-100%)</label>
                 <input
+                  id="hsl-sat-channel"
+                  aria-label="Saturation channel (0-100 percent)"
                   type="number"
                   min="0"
                   max="100"
@@ -173,8 +185,10 @@ export default function ColorConverterPage() {
                 />
               </div>
               <div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Light (0-100%)</span>
+                <label htmlFor="hsl-light-channel" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block' }}>Light (0-100%)</label>
                 <input
+                  id="hsl-light-channel"
+                  aria-label="Lightness channel (0-100 percent)"
                   type="number"
                   min="0"
                   max="100"
@@ -248,7 +262,11 @@ export default function ColorConverterPage() {
                   {item.label}
                 </span>
                 <span style={{ fontWeight: 600, flex: 1 }}>{item.val}</span>
-                <button className="copy-icon-btn" onClick={() => handleCopy(item.val, item.label)}>
+                <button
+                  className="copy-icon-btn"
+                  aria-label={`Copy ${item.label} value`}
+                  onClick={() => handleCopy(item.val, item.label)}
+                >
                   {copiedKey === item.label ? <Check size={15} color="#10B981" /> : <Copy size={15} />}
                 </button>
               </div>

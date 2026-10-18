@@ -8,13 +8,21 @@ export const clamp = (val, min = 0, max = 255) => Math.min(Math.max(val, min), m
 /**
  * Normalizes a HEX string to a clean 6-character hex without '#'
  */
-export function normalizeHex(hex) {
-  if (!hex) return '000000';
+export function normalizeHex(hex, uppercase = false) {
+  if (!hex) return uppercase ? '000000' : '000000';
   let clean = hex.toString().replace(/[^0-9a-fA-F]/g, '');
   if (clean.length === 3) {
     clean = clean.split('').map(c => c + c).join('');
   }
-  return clean.padEnd(6, '0').slice(0, 6).toLowerCase();
+  const result = clean.padEnd(6, '0').slice(0, 6);
+  return uppercase ? result.toUpperCase() : result.toLowerCase();
+}
+
+/**
+ * Formats any hex string into standard uppercase '#RRGGBB'
+ */
+export function formatHex(hex) {
+  return '#' + normalizeHex(hex, true);
 }
 
 /**

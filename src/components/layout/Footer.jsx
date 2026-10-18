@@ -18,7 +18,7 @@ export default function Footer() {
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: 320, marginBottom: 18 }}>
               Professional image color extractor, palette generator, and color science studio. All processing runs directly in your browser.
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: '#10B981', fontWeight: 600 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: '#047857', fontWeight: 600 }}>
               <Shield size={16} />
               <span>100% Client-Side Privacy</span>
             </div>

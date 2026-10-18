@@ -25,7 +25,7 @@ import { useToast } from '../context/ToastContext';
 export default function ContrastCheckerPage() {
   const { showToast } = useToast();
 
-  const [textColor, setTextColor] = useState('#2596BE');
+  const [textColor, setTextColor] = useState('#166A8A');
   const [bgColor, setBgColor] = useState('#FFFFFF');
   const [activePicker, setActivePicker] = useState(null); // 'text' | 'bg' | null
 
@@ -111,10 +111,11 @@ export default function ContrastCheckerPage() {
           {/* Text / Foreground Color */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <label style={{ fontSize: '0.82rem', fontWeight: 700 }}>Foreground / Text Color</label>
+              <label htmlFor="foreground-color-input" style={{ fontSize: '0.82rem', fontWeight: 700 }}>Foreground / Text Color</label>
               <button
                 onClick={() => setActivePicker(activePicker === 'text' ? null : 'text')}
                 style={{ background: 'none', border: 'none', color: 'var(--color-accent-blue)', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                aria-label={activePicker === 'text' ? 'Close foreground color picker' : 'Open foreground color picker'}
               >
                 {activePicker === 'text' ? 'Close Picker' : 'Open Picker'}
               </button>
@@ -132,6 +133,8 @@ export default function ContrastCheckerPage() {
                 }}
               />
               <input
+                id="foreground-color-input"
+                aria-label="Foreground text hex color"
                 type="text"
                 value={textColor}
                 onChange={e => setTextColor(e.target.value)}
@@ -150,10 +153,11 @@ export default function ContrastCheckerPage() {
           {/* Background Color */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <label style={{ fontSize: '0.82rem', fontWeight: 700 }}>Background Color</label>
+              <label htmlFor="background-color-input" style={{ fontSize: '0.82rem', fontWeight: 700 }}>Background Color</label>
               <button
                 onClick={() => setActivePicker(activePicker === 'bg' ? null : 'bg')}
                 style={{ background: 'none', border: 'none', color: 'var(--color-accent-blue)', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                aria-label={activePicker === 'bg' ? 'Close background color picker' : 'Open background color picker'}
               >
                 {activePicker === 'bg' ? 'Close Picker' : 'Open Picker'}
               </button>
@@ -171,6 +175,8 @@ export default function ContrastCheckerPage() {
                 }}
               />
               <input
+                id="background-color-input"
+                aria-label="Background hex color"
                 type="text"
                 value={bgColor}
                 onChange={e => setBgColor(e.target.value)}
@@ -221,7 +227,7 @@ export default function ContrastCheckerPage() {
             <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
               Calculated Ratio
             </div>
-            <div style={{ fontSize: '3.5rem', fontWeight: 800, margin: '8px 0', color: rating.aaNormal ? '#10B981' : '#EF4444' }}>
+            <div style={{ fontSize: '3.5rem', fontWeight: 800, margin: '8px 0', color: rating.aaNormal ? '#047857' : '#B91C1C' }}>
               {ratio} : 1
             </div>
 
@@ -230,7 +236,7 @@ export default function ContrastCheckerPage() {
               {/* AA Normal */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AA Normal (4.5:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaNormal ? '#10B981' : '#EF4444' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaNormal ? '#047857' : '#B91C1C' }}>
                   {rating.aaNormal ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaNormal ? 'Pass' : 'Fail'}</span>
                 </div>
@@ -239,7 +245,7 @@ export default function ContrastCheckerPage() {
               {/* AA Large */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AA Large (3.0:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaLarge ? '#10B981' : '#EF4444' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaLarge ? '#047857' : '#B91C1C' }}>
                   {rating.aaLarge ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaLarge ? 'Pass' : 'Fail'}</span>
                 </div>
@@ -248,7 +254,7 @@ export default function ContrastCheckerPage() {
               {/* AAA Normal */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AAA Normal (7.0:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaNormal ? '#10B981' : '#EF4444' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaNormal ? '#047857' : '#B91C1C' }}>
                   {rating.aaaNormal ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaaNormal ? 'Pass' : 'Fail'}</span>
                 </div>
@@ -257,7 +263,7 @@ export default function ContrastCheckerPage() {
               {/* AAA Large */}
               <div style={{ padding: 12, background: 'var(--bg-card-subtle)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>AAA Large (4.5:1)</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaLarge ? '#10B981' : '#EF4444' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: rating.aaaLarge ? '#047857' : '#B91C1C' }}>
                   {rating.aaaLarge ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                   <span>{rating.aaaLarge ? 'Pass' : 'Fail'}</span>
                 </div>

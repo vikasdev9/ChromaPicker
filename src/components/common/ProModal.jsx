@@ -8,7 +8,14 @@ export default function ProModal({ isOpen, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 540 }}>
+      <div
+        className="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pro-modal-title"
+        onClick={e => e.stopPropagation()}
+        style={{ maxWidth: 540 }}
+      >
         <button
           onClick={onClose}
           style={{
@@ -20,7 +27,7 @@ export default function ProModal({ isOpen, onClose }) {
             color: 'var(--text-muted)',
             cursor: 'pointer'
           }}
-          aria-label="Close"
+          aria-label="Close dialog"
         >
           <X size={20} />
         </button>
@@ -41,7 +48,7 @@ export default function ProModal({ isOpen, onClose }) {
           >
             <Sparkles size={28} />
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginBottom: 6 }}>
+          <h2 id="pro-modal-title" style={{ fontSize: '1.45rem', fontWeight: 800, marginBottom: 6 }}>
             Chromapick Pro
           </h2>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>

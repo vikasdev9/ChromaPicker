@@ -851,7 +851,7 @@ export default function ImageWorkspace() {
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: contrastWhite >= 4.5 ? '#10B981' : '#EF4444',
+                      color: contrastWhite >= 4.5 ? '#047857' : '#B91C1C',
                       whiteSpace: 'nowrap'
                     }}
                   >
@@ -890,7 +890,7 @@ export default function ImageWorkspace() {
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: contrastBlack >= 4.5 ? '#10B981' : '#EF4444',
+                      color: contrastBlack >= 4.5 ? '#047857' : '#B91C1C',
                       whiteSpace: 'nowrap'
                     }}
                   >
@@ -1490,6 +1490,7 @@ export default function ImageWorkspace() {
                 <button
                   key={fmt}
                   onClick={() => handleExport(fmt.toLowerCase())}
+                  aria-label={`Export palette as ${fmt.toUpperCase()}`}
                   style={{
                     padding: '6px 14px',
                     borderRadius: 20,

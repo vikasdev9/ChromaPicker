@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test artifacts and reports
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Generated QA and Lighthouse reports
+qa-reports/*.html
+qa-reports/*.json
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+coverage/

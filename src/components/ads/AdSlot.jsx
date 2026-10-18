@@ -136,6 +136,7 @@ export default function AdSlot({ position = 'inline', onRemoveAdsClick }) {
           <button
             onClick={() => setIsVisible(false)}
             style={{ background: 'none', border: 'none', color: '#8B949E', cursor: 'pointer' }}
+            aria-label="Close advertisement"
           >
             <X size={13} />
           </button>
@@ -223,6 +224,7 @@ export default function AdSlot({ position = 'inline', onRemoveAdsClick }) {
             <button
               onClick={() => setIsVisible(false)}
               style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              aria-label="Close advertisement"
             >
               <X size={13} />
             </button>
@@ -604,7 +606,7 @@ export default function AdSlot({ position = 'inline', onRemoveAdsClick }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>Enjoying Chromapick? Support continuous development</span>
-            <span style={{ fontSize: '0.68rem', background: 'rgba(0,0,0,0.06)', padding: '2px 6px', borderRadius: 4, color: 'var(--text-muted)' }}>AD</span>
+            <span style={{ fontSize: '0.68rem', background: 'rgba(0,0,0,0.06)', padding: '2px 6px', borderRadius: 4, color: '#334155', fontWeight: 600 }}>AD</span>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2 }}>
             Switch to Chromapick Pro to unlock unlimited vector exports and clean UI.

@@ -7,8 +7,8 @@
   --color-white: #FFFDFE;
   --color-mint: #B8FFE4;
   --color-cyan: #A8F3FA;
-  --color-accent-blue: #2596BE;
-  --color-accent-blue-hover: #1E7E9E;
+  --color-accent-blue: #166A8A;
+  --color-accent-blue-hover: #104E66;
 
   /* Theme: Light Defaults */
   --bg-gradient-1: #FFD5BE;
@@ -27,8 +27,8 @@
   --border-focus: #2596BE;
 
   --text-primary: #111827;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
   --text-inverse: #FFFFFF;
 
   --btn-primary-bg: #111827;
@@ -72,8 +72,8 @@
   --border-focus: #38BDF8;
 
   --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
   --text-inverse: #0B0F19;
 
   --btn-primary-bg: #F8FAFC;

@@ -280,6 +280,9 @@ export default function SelectImageModal({ isOpen, onClose }) {
     >
       <div
         className="chroma-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="select-image-modal-title"
         style={{
           width: '100%',
           maxWidth: 820,
@@ -305,6 +308,7 @@ export default function SelectImageModal({ isOpen, onClose }) {
         >
           <div style={{ flex: 1, textAlign: 'center' }}>
             <h2
+              id="select-image-modal-title"
               style={{
                 fontSize: '1.25rem',
                 fontWeight: 800,

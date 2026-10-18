@@ -18,7 +18,13 @@ export default function AuthModal({ isOpen, mode = 'login', onClose, onSwitchMod
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={e => e.stopPropagation()}>
+      <div
+        className="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
+        onClick={e => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           style={{
@@ -30,13 +36,13 @@ export default function AuthModal({ isOpen, mode = 'login', onClose, onSwitchMod
             color: 'var(--text-muted)',
             cursor: 'pointer'
           }}
-          aria-label="Close"
+          aria-label="Close dialog"
         >
           <X size={20} />
         </button>
 
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: 6 }}>
+          <h2 id="auth-modal-title" style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: 6 }}>
             {mode === 'login' ? 'Welcome Back' : 'Create an Account'}
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -63,11 +69,12 @@ export default function AuthModal({ isOpen, mode = 'login', onClose, onSwitchMod
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {mode === 'signup' && (
             <div>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+              <label htmlFor="auth-modal-name" style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 6 }}>
                 Full Name
               </label>
               <div style={{ position: 'relative' }}>
                 <input
+                  id="auth-modal-name"
                   type="text"
                   required
                   placeholder="Alex Morgan"
@@ -82,11 +89,12 @@ export default function AuthModal({ isOpen, mode = 'login', onClose, onSwitchMod
           )}
 
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+            <label htmlFor="auth-modal-email" style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 6 }}>
               Email Address
             </label>
             <div style={{ position: 'relative' }}>
               <input
+                id="auth-modal-email"
                 type="email"
                 required
                 placeholder="name@example.com"
@@ -100,11 +108,12 @@ export default function AuthModal({ isOpen, mode = 'login', onClose, onSwitchMod
           </div>
 
           <div>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 6 }}>
+            <label htmlFor="auth-modal-password" style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 6 }}>
               Password
             </label>
             <div style={{ position: 'relative' }}>
               <input
+                id="auth-modal-password"
                 type="password"
                 required
                 placeholder="••••••••"
