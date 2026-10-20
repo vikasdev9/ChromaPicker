@@ -15,7 +15,8 @@ import {
   Grid,
   Type,
   BoxSelect,
-  Square
+  Square,
+  Sliders
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import ToolsMegaMenu from '../navigation/ToolsMegaMenu';
@@ -300,6 +301,15 @@ export default function Header() {
               >
                 <Sparkles size={18} color="var(--color-accent-blue)" />
                 <span>Glassmorphism</span>
+              </Link>
+              <Link
+                to="/image-filter-picker"
+                className="nav-link"
+                style={{ fontSize: '0.95rem', padding: '10px 14px', borderRadius: 'var(--radius-md)', minHeight: 44 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Sliders size={18} color="var(--color-accent-blue)" />
+                <span>Image Filter Picker</span>
               </Link>
               <Link
                 to="/pricing"

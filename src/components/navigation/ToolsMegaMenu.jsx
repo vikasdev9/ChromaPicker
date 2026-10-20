@@ -13,7 +13,8 @@ import {
   Shuffle,
   Type,
   BoxSelect,
-  Square
+  Square,
+  Sliders
 } from 'lucide-react';
 
 export default function ToolsMegaMenu({ isOpen, onClose }) {
@@ -202,6 +203,16 @@ export default function ToolsMegaMenu({ isOpen, onClose }) {
                 <div>
                   <div className="mega-item-title">Glassmorphism</div>
                   <div className="mega-item-desc">Translucent frosted glass CSS generator</div>
+                </div>
+              </Link>
+
+              <Link to="/image-filter-picker" className="mega-item" onClick={onClose}>
+                <div className="mega-item-icon">
+                  <Sliders size={16} />
+                </div>
+                <div>
+                  <div className="mega-item-title">Image Filter Picker</div>
+                  <div className="mega-item-desc">Real-time CSS filters, comparison & PNG export</div>
                 </div>
               </Link>
             </div>
