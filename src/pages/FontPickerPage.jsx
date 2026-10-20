@@ -11,7 +11,8 @@ import {
   Sliders,
   Copy,
   Heart,
-  Grid
+  Grid,
+  ScanText
 } from 'lucide-react';
 import {
   FONT_CATALOG,
@@ -23,6 +24,7 @@ import { loadFontOnDemand } from '../utils/fontLoader';
 import FontCard from '../components/fonts/FontCard';
 import FontPreviewMockup from '../components/fonts/FontPreviewMockup';
 import FontCssExportModal from '../components/fonts/FontCssExportModal';
+import FontImageWorkspace from '../components/fonts/FontImageWorkspace';
 import { useToast } from '../context/ToastContext';
 
 // Local storage key for favorite fonts
@@ -258,6 +260,70 @@ export default function FontPickerPage() {
     });
   };
 
+  // Image Finder Integration Handlers
+  const handleApplyCandidateAsHeading = (candidate, estimatedWeight, estimatedStyle) => {
+    if (!candidate) return;
+    const match = FONT_CATALOG.find(f => f.family === candidate.family) || candidate;
+    setHeadingFamily(match.family);
+    if (estimatedWeight && match.weights && match.weights.includes(Number(estimatedWeight))) {
+      setHeadingWeight(Number(estimatedWeight));
+    } else if (match.weights && match.weights.length > 0) {
+      setHeadingWeight(match.weights[match.weights.length - 1] || 700);
+    }
+    if (estimatedStyle === 'italic' && match.hasItalic) {
+      setHeadingStyle('italic');
+    } else {
+      setHeadingStyle('normal');
+    }
+    setSelectedPresetId('');
+    showToast(`Applied "${match.family}" as Heading Font in Studio`, 'success');
+  };
+
+  const handleApplyCandidateAsBody = (candidate, estimatedWeight, estimatedStyle) => {
+    if (!candidate) return;
+    const match = FONT_CATALOG.find(f => f.family === candidate.family) || candidate;
+    setBodyFamily(match.family);
+    if (estimatedWeight && match.weights && match.weights.includes(Number(estimatedWeight))) {
+      setBodyWeight(Number(estimatedWeight));
+    } else if (match.weights && match.weights.length > 0) {
+      setBodyWeight(match.weights.includes(400) ? 400 : match.weights[0]);
+    }
+    if (estimatedStyle === 'italic' && match.hasItalic) {
+      setBodyStyle('italic');
+    } else {
+      setBodyStyle('normal');
+    }
+    setSelectedPresetId('');
+    showToast(`Applied "${match.family}" as Body Font in Studio`, 'success');
+  };
+
+  const handleOpenCandidateInTester = (family, weight, style) => {
+    const match = FONT_CATALOG.find(f => f.family === family);
+    if (match) {
+      setTesterFamily(match.family);
+      if (weight && match.weights.includes(Number(weight))) {
+        setTesterWeight(Number(weight));
+      }
+      if (style === 'italic' && match.hasItalic) {
+        setTesterStyle('italic');
+      } else {
+        setTesterStyle('normal');
+      }
+      setActiveTab('tester');
+      showToast(`Opened "${match.family}" in Specimen Tester`, 'info');
+    }
+  };
+
+  const handleSearchCandidateInLibrary = (family) => {
+    setSearchQuery(family);
+    setSelectedCategory('all');
+    setActiveTab('catalog');
+  };
+
+  // Image Finder target slot tracking ('heading' | 'body' | null)
+  const [imageTargetSlot, setImageTargetSlot] = useState(null);
+  const [pendingImageFile, setPendingImageFile] = useState(null);
+
   // Filter and sort catalog
   const filteredCatalog = useMemo(() => {
     return FONT_CATALOG.filter(font => {
@@ -418,6 +484,26 @@ export default function FontPickerPage() {
 
             <button
               type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setImageTargetSlot(null);
+                setActiveTab('image-finder');
+              }}
+              style={{
+                padding: '7px 12px',
+                fontSize: '0.8rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6
+              }}
+              title="Identify typography from an image or screenshot"
+            >
+              <ScanText size={14} />
+              <span>Match from Image</span>
+            </button>
+
+            <button
+              type="button"
               className="btn-primary"
               onClick={() => setIsExportOpen(true)}
               style={{ padding: '7px 14px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
@@ -510,6 +596,40 @@ export default function FontPickerPage() {
         >
           <Type size={16} />
           <span>Single Font Specimen Tester</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('image-finder')}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: '10px 16px',
+            fontSize: '0.95rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            color: activeTab === 'image-finder' ? 'var(--color-accent-blue)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'image-finder' ? '2px solid var(--color-accent-blue)' : '2px solid transparent',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8
+          }}
+        >
+          <ScanText size={16} />
+          <span>Identify from Image</span>
+          <span
+            style={{
+              fontSize: '0.62rem',
+              fontWeight: 800,
+              padding: '2px 6px',
+              borderRadius: 'var(--radius-full)',
+              background: 'linear-gradient(135deg, #38BDF8 0%, #A855F7 100%)',
+              color: '#fff',
+              letterSpacing: '0.04em'
+            }}
+          >
+            NEW
+          </span>
         </button>
       </div>
 
@@ -674,6 +794,18 @@ export default function FontPickerPage() {
             {/* Body Font Controller */}
             <div
               className="chroma-card"
+              onDragOver={e => {
+                e.preventDefault();
+                setIsBodyDragging(true);
+              }}
+              onDragLeave={() => setIsBodyDragging(false)}
+              onDrop={e => {
+                e.preventDefault();
+                setIsBodyDragging(false);
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                  handlePickFromImageForBody(e.dataTransfer.files[0]);
+                }
+              }}
               style={{
                 padding: '20px',
                 borderRadius: 'var(--radius-lg)',
@@ -889,6 +1021,42 @@ export default function FontPickerPage() {
       {/* ================= TAB 2: FONT LIBRARY & SEARCH ================= */}
       {activeTab === 'catalog' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Pick from Image Discovery Banner */}
+          <div
+            style={{
+              padding: '12px 18px',
+              borderRadius: 'var(--radius-lg)',
+              background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%)',
+              border: '1px solid var(--border-color)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ScanText size={18} color="var(--color-accent-blue)" />
+              <span style={{ fontSize: '0.84rem', fontWeight: 600 }}>
+                Saw a font in an image or screenshot? Identify stroke geometry and match Google Fonts.
+              </span>
+            </div>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setActiveTab('image-finder')}
+              style={{
+                padding: '6px 12px',
+                fontSize: '0.76rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6
+              }}
+            >
+              <span>Open Image Font Finder</span>
+            </button>
+          </div>
+
           {/* Search, Filter & Sample Text Bar */}
           <div
             className="chroma-card"
@@ -1199,6 +1367,26 @@ export default function FontPickerPage() {
               >
                 Use as Body
               </button>
+
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  setImageTargetSlot(null);
+                  setActiveTab('image-finder');
+                }}
+                style={{
+                  padding: '8px 12px',
+                  fontSize: '0.8rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+                title="Identify typography from an image or screenshot"
+              >
+                <ScanText size={14} />
+                <span>Identify from Image</span>
+              </button>
             </div>
           </div>
 
@@ -1375,6 +1563,19 @@ export default function FontPickerPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ================= TAB 4: IDENTIFY FROM IMAGE ================= */}
+      {activeTab === 'image-finder' && (
+        <FontImageWorkspace
+          onApplyHeading={handleApplyCandidateAsHeading}
+          onApplyBody={handleApplyCandidateAsBody}
+          onOpenInTester={handleOpenCandidateInTester}
+          onSearchInLibrary={handleSearchCandidateInLibrary}
+          onNavigateToPairing={() => setActiveTab('pairing')}
+          initialFile={pendingImageFile}
+          targetSlot={imageTargetSlot}
+        />
       )}
 
       {/* CSS & Configuration Export Modal */}
