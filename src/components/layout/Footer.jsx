@@ -46,6 +46,7 @@ export default function Footer() {
               <li><Link to="/color-palette-generator" className="footer-link">Color Palettes</Link></li>
               <li><Link to="/palette-creator" className="footer-link">Palette Creator</Link></li>
               <li><Link to="/color-gradient-generator" className="footer-link">CSS Gradients</Link></li>
+              <li><Link to="/font-picker" className="footer-link">Font Pairing Studio</Link></li>
             </ul>
           </div>
 

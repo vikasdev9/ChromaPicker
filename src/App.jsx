@@ -17,6 +17,7 @@ import BrowseColorsPage from './pages/BrowseColorsPage';
 import ColorConverterPage from './pages/ColorConverterPage';
 import PaletteCreatorPage from './pages/PaletteCreatorPage';
 import PricingPage from './pages/PricingPage';
+import FontPickerPage from './pages/FontPickerPage';
 import AboutPage from './pages/AboutPage';
 import PrivacyPage from './pages/PrivacyPage';
 import ContactPage from './pages/ContactPage';
@@ -82,6 +83,7 @@ export default function App() {
                   <Route path="/browse-colors" element={<BrowseColorsPage />} />
                   <Route path="/color-converter" element={<ColorConverterPage />} />
                   <Route path="/palette-creator" element={<PaletteCreatorPage />} />
+                  <Route path="/font-picker" element={<FontPickerPage />} />
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />

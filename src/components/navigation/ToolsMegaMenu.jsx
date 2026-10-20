@@ -10,7 +10,8 @@ import {
   Layers,
   ArrowRight,
   RefreshCw,
-  Shuffle
+  Shuffle,
+  Type
 } from 'lucide-react';
 
 export default function ToolsMegaMenu({ isOpen, onClose }) {
@@ -159,6 +160,16 @@ export default function ToolsMegaMenu({ isOpen, onClose }) {
                 <div>
                   <div className="mega-item-title">Harmonies & Tones</div>
                   <div className="mega-item-desc">Explore triadic, complementary & split palettes</div>
+                </div>
+              </Link>
+
+              <Link to="/font-picker" className="mega-item" onClick={onClose}>
+                <div className="mega-item-icon">
+                  <Type size={16} />
+                </div>
+                <div>
+                  <div className="mega-item-title">Font Picker & Pairing</div>
+                  <div className="mega-item-desc">Browse fonts, preview pairings & export CSS</div>
                 </div>
               </Link>
             </div>

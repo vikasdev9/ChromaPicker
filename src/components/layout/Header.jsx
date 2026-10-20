@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Eye,
   Sparkles,
-  Grid
+  Grid,
+  Type
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import ToolsMegaMenu from '../navigation/ToolsMegaMenu';
@@ -261,6 +262,15 @@ export default function Header() {
               >
                 <Grid size={18} color="#F59E0B" />
                 <span>Browse 300+ Colors</span>
+              </Link>
+              <Link
+                to="/font-picker"
+                className="nav-link"
+                style={{ fontSize: '0.95rem', padding: '10px 14px', borderRadius: 'var(--radius-md)', minHeight: 44 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Type size={18} color="var(--color-accent-blue)" />
+                <span>Font Picker & Pairing</span>
               </Link>
               <Link
                 to="/pricing"
