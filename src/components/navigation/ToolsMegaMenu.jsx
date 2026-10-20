@@ -11,7 +11,8 @@ import {
   ArrowRight,
   RefreshCw,
   Shuffle,
-  Type
+  Type,
+  BoxSelect
 } from 'lucide-react';
 
 export default function ToolsMegaMenu({ isOpen, onClose }) {
@@ -170,6 +171,16 @@ export default function ToolsMegaMenu({ isOpen, onClose }) {
                 <div>
                   <div className="mega-item-title">Font Picker & Pairing</div>
                   <div className="mega-item-desc">Browse fonts, preview pairings & export CSS</div>
+                </div>
+              </Link>
+
+              <Link to="/shadow-picker" className="mega-item" onClick={onClose}>
+                <div className="mega-item-icon">
+                  <BoxSelect size={16} />
+                </div>
+                <div>
+                  <div className="mega-item-title">Shadow Picker</div>
+                  <div className="mega-item-desc">Multi-layer box & text shadows studio</div>
                 </div>
               </Link>
             </div>

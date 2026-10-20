@@ -13,7 +13,8 @@ import {
   Eye,
   Sparkles,
   Grid,
-  Type
+  Type,
+  BoxSelect
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import ToolsMegaMenu from '../navigation/ToolsMegaMenu';
@@ -271,6 +272,15 @@ export default function Header() {
               >
                 <Type size={18} color="var(--color-accent-blue)" />
                 <span>Font Picker & Pairing</span>
+              </Link>
+              <Link
+                to="/shadow-picker"
+                className="nav-link"
+                style={{ fontSize: '0.95rem', padding: '10px 14px', borderRadius: 'var(--radius-md)', minHeight: 44 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <BoxSelect size={18} color="var(--color-accent-blue)" />
+                <span>Shadow Picker</span>
               </Link>
               <Link
                 to="/pricing"
