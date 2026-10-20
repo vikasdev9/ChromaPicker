@@ -9,13 +9,9 @@ import {
   Code,
   Search,
   Sliders,
-  Check,
   Copy,
   Heart,
-  Layers,
-  Grid,
-  ExternalLink,
-  ChevronDown
+  Grid
 } from 'lucide-react';
 import {
   FONT_CATALOG,
@@ -23,11 +19,7 @@ import {
   TYPOGRAPHY_PRESETS,
   SUGGESTED_PAIRINGS
 } from '../data/fontCatalog';
-import {
-  loadFontOnDemand,
-  buildGoogleFontUrl,
-  generateFontPairingCss
-} from '../utils/fontLoader';
+import { loadFontOnDemand } from '../utils/fontLoader';
 import FontCard from '../components/fonts/FontCard';
 import FontPreviewMockup from '../components/fonts/FontPreviewMockup';
 import FontCssExportModal from '../components/fonts/FontCssExportModal';
@@ -38,7 +30,7 @@ const FAVORITES_STORAGE_KEY = 'chromapick_favorite_fonts';
 
 export default function FontPickerPage() {
   const { showToast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   // Active Main Tab: 'pairing' | 'catalog' | 'tester'
   const [activeTab, setActiveTab] = useState('pairing');
