@@ -12,7 +12,8 @@ import {
   RefreshCw,
   Shuffle,
   Type,
-  BoxSelect
+  BoxSelect,
+  Square
 } from 'lucide-react';
 
 export default function ToolsMegaMenu({ isOpen, onClose }) {
@@ -181,6 +182,16 @@ export default function ToolsMegaMenu({ isOpen, onClose }) {
                 <div>
                   <div className="mega-item-title">Shadow Picker</div>
                   <div className="mega-item-desc">Multi-layer box & text shadows studio</div>
+                </div>
+              </Link>
+
+              <Link to="/border-radius-picker" className="mega-item" onClick={onClose}>
+                <div className="mega-item-icon">
+                  <Square size={16} />
+                </div>
+                <div>
+                  <div className="mega-item-title">Border Radius</div>
+                  <div className="mega-item-desc">4-corner & 8-point radius generator</div>
                 </div>
               </Link>
             </div>

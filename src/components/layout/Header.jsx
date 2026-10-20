@@ -14,7 +14,8 @@ import {
   Sparkles,
   Grid,
   Type,
-  BoxSelect
+  BoxSelect,
+  Square
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import ToolsMegaMenu from '../navigation/ToolsMegaMenu';
@@ -281,6 +282,15 @@ export default function Header() {
               >
                 <BoxSelect size={18} color="var(--color-accent-blue)" />
                 <span>Shadow Picker</span>
+              </Link>
+              <Link
+                to="/border-radius-picker"
+                className="nav-link"
+                style={{ fontSize: '0.95rem', padding: '10px 14px', borderRadius: 'var(--radius-md)', minHeight: 44 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Square size={18} color="var(--color-accent-blue)" />
+                <span>Border Radius</span>
               </Link>
               <Link
                 to="/pricing"
