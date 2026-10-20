@@ -51,6 +51,7 @@
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 12px 28px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.04);
   --shadow-float: 0 20px 40px -15px rgba(37, 150, 190, 0.15), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+  --ambient-shadow: 0 12px 32px -6px var(--ambient-glow, rgba(0, 0, 0, 0.08)), 0 4px 12px -4px rgba(0, 0, 0, 0.04);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -119,6 +120,7 @@
   --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 12px 28px -6px rgba(0, 0, 0, 0.6);
   --shadow-float: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  --ambient-shadow: 0 12px 32px -6px var(--ambient-glow, rgba(0, 0, 0, 0.5)), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
 
   /* Select Image Modal Tokens: Dark Theme */
   --modal-bg: #0F172A;
@@ -172,11 +174,12 @@ h1, h2, h3, h4, h5, h6 {
   bottom: 0;
   pointer-events: none;
   z-index: 0;
+  transition: background 0.6s ease-out, opacity 0.6s ease-out;
   background: 
-    radial-gradient(circle at 5% 10%, rgba(254, 205, 211, 0.48) 0%, transparent 42%),
-    radial-gradient(circle at 35% 15%, rgba(233, 213, 255, 0.42) 0%, transparent 40%),
-    radial-gradient(circle at 75% 12%, rgba(186, 230, 253, 0.46) 0%, transparent 45%),
-    radial-gradient(circle at 95% 40%, rgba(187, 247, 208, 0.4) 0%, transparent 45%);
+    radial-gradient(circle at 5% 10%, var(--ambient-color-1, rgba(254, 205, 211, 0.48)) 0%, transparent 42%),
+    radial-gradient(circle at 35% 15%, var(--ambient-color-2, rgba(233, 213, 255, 0.42)) 0%, transparent 40%),
+    radial-gradient(circle at 75% 12%, var(--ambient-color-3, rgba(186, 230, 253, 0.46)) 0%, transparent 45%),
+    radial-gradient(circle at 95% 40%, var(--ambient-color-4, rgba(187, 247, 208, 0.4)) 0%, transparent 45%);
 }
 
 /* Subtle grid pattern matching reference screenshot */
@@ -195,11 +198,17 @@ h1, h2, h3, h4, h5, h6 {
 /* Dark mode ambient tint */
 [data-theme='dark'] .chromapick-bg-ambient,
 .theme-dark .chromapick-bg-ambient {
-  opacity: 0.18;
+  opacity: 0.22;
   background:
-    radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.2) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.16) 0%, transparent 50%);
+    radial-gradient(circle at 10% 15%, var(--ambient-dark-1, rgba(56, 189, 248, 0.22)) 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, var(--ambient-dark-2, rgba(99, 102, 241, 0.2)) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, var(--ambient-dark-3, rgba(16, 185, 129, 0.16)) 0%, transparent 50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chromapick-bg-ambient {
+    transition: none !important;
+  }
 }
 
 /* Layout App Container */

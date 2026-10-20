@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
-import { PaletteProvider } from './context/PaletteContext';
+import { PaletteProvider, usePalette } from './context/PaletteContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
@@ -33,14 +33,38 @@ function NotFoundPage() {
   );
 }
 
+/**
+ * Dynamic ambient background layer that smoothly applies subtle image-sampled
+ * gradient tokens via CSS variables, safely falling back to defaults.
+ */
+function AmbientBackground() {
+  const { ambientColors } = usePalette();
+
+  const style = React.useMemo(() => {
+    if (!ambientColors) return undefined;
+    return {
+      '--ambient-color-1': ambientColors.light[0],
+      '--ambient-color-2': ambientColors.light[1],
+      '--ambient-color-3': ambientColors.light[2],
+      '--ambient-color-4': ambientColors.light[3],
+      '--ambient-dark-1': ambientColors.dark[0],
+      '--ambient-dark-2': ambientColors.dark[1],
+      '--ambient-dark-3': ambientColors.dark[2],
+      '--ambient-glow': ambientColors.glow
+    };
+  }, [ambientColors]);
+
+  return <div className="chromapick-bg-ambient" style={style} aria-hidden="true" />;
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
         <PaletteProvider>
           <BrowserRouter>
-            {/* Ambient Background Gradient with subtle vertical lines matching Screenshot 1 & 2 */}
-            <div className="chromapick-bg-ambient" />
+            {/* Ambient Background Gradient with subtle vertical lines and dynamic image color sampling */}
+            <AmbientBackground />
 
             <div className="app-container">
               <Header />

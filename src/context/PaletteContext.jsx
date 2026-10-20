@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { SAMPLE_IMAGES } from '../data/sampleImages';
 import { extractPaletteAsync } from '../utils/quantization';
+import { extractImageAmbientColors } from '../utils/backgroundSampling';
 import { useToast } from './ToastContext';
 
 const PaletteContext = createContext();
@@ -18,6 +19,35 @@ export function PaletteProvider({ children }) {
       title: SAMPLE_IMAGES[0].title
     };
   });
+
+  // Dynamic ambient background gradient colors sampled from current image
+  const [ambientColors, setAmbientColors] = useState(null);
+
+  // Sample ambient background colors whenever source image changes
+  useEffect(() => {
+    if (!currentImage?.src) {
+      setAmbientColors(null);
+      return;
+    }
+
+    let isCancelled = false;
+
+    extractImageAmbientColors(currentImage.src)
+      .then((colors) => {
+        if (!isCancelled) {
+          setAmbientColors(colors);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setAmbientColors(null);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentImage?.src]);
 
   const [extractedPalette, setExtractedPalette] = useState([
     { hex: '#1A8EAC', rgb: { r: 26, g: 142, b: 172 }, hsl: { h: 192, s: 74, l: 39 }, frequency: 28 },
@@ -304,6 +334,7 @@ export function PaletteProvider({ children }) {
       value={{
         currentImage,
         setCurrentImage,
+        ambientColors,
         extractedPalette,
         setExtractedPalette,
         selectedColor,

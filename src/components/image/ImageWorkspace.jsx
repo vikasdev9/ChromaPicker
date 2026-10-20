@@ -470,7 +470,8 @@ export default function ImageWorkspace() {
         background: 'var(--bg-card)',
         borderRadius: 20,
         border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-lg)',
+        boxShadow: 'var(--ambient-shadow, var(--shadow-lg))',
+        transition: 'box-shadow 0.6s ease-out',
         overflow: 'hidden'
       }}
     >
