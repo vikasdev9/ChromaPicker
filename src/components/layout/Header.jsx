@@ -293,6 +293,15 @@ export default function Header() {
                 <span>Border Radius</span>
               </Link>
               <Link
+                to="/glassmorphism-picker"
+                className="nav-link"
+                style={{ fontSize: '0.95rem', padding: '10px 14px', borderRadius: 'var(--radius-md)', minHeight: 44 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Sparkles size={18} color="var(--color-accent-blue)" />
+                <span>Glassmorphism</span>
+              </Link>
+              <Link
                 to="/pricing"
                 className="nav-link"
                 style={{ fontSize: '0.95rem', padding: '10px 14px', borderRadius: 'var(--radius-md)', minHeight: 44 }}

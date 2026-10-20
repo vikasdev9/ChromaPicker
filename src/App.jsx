@@ -20,6 +20,7 @@ import PricingPage from './pages/PricingPage';
 import FontPickerPage from './pages/FontPickerPage';
 import ShadowPickerPage from './pages/ShadowPickerPage';
 import BorderRadiusPage from './pages/BorderRadiusPage';
+import GlassmorphismPage from './pages/GlassmorphismPage';
 import AboutPage from './pages/AboutPage';
 import PrivacyPage from './pages/PrivacyPage';
 import ContactPage from './pages/ContactPage';
@@ -90,6 +91,8 @@ export default function App() {
                   <Route path="/box-shadow-generator" element={<Navigate to="/shadow-picker" replace />} />
                   <Route path="/border-radius-picker" element={<BorderRadiusPage />} />
                   <Route path="/border-radius-generator" element={<Navigate to="/border-radius-picker" replace />} />
+                  <Route path="/glassmorphism-picker" element={<GlassmorphismPage />} />
+                  <Route path="/glassmorphism-generator" element={<Navigate to="/glassmorphism-picker" replace />} />
                   <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />

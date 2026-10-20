@@ -48,6 +48,7 @@ export default function Footer() {
               <li><Link to="/color-gradient-generator" className="footer-link">CSS Gradients</Link></li>
               <li><Link to="/shadow-picker" className="footer-link">Shadow Picker</Link></li>
               <li><Link to="/border-radius-picker" className="footer-link">Border Radius</Link></li>
+              <li><Link to="/glassmorphism-picker" className="footer-link">Glassmorphism Studio</Link></li>
               <li><Link to="/font-picker" className="footer-link">Font Pairing Studio</Link></li>
             </ul>
           </div>

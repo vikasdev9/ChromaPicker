@@ -194,6 +194,16 @@ export default function ToolsMegaMenu({ isOpen, onClose }) {
                   <div className="mega-item-desc">4-corner & 8-point radius generator</div>
                 </div>
               </Link>
+
+              <Link to="/glassmorphism-picker" className="mega-item" onClick={onClose}>
+                <div className="mega-item-icon">
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <div className="mega-item-title">Glassmorphism</div>
+                  <div className="mega-item-desc">Translucent frosted glass CSS generator</div>
+                </div>
+              </Link>
             </div>
           </div>
         </div>
