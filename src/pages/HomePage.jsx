@@ -100,7 +100,7 @@ export default function HomePage() {
               </button>
 
               <button
-                onClick={() => loadSampleImage('yellow-portrait')}
+                onClick={() => loadSampleImage('alpine-lake')}
                 className="btn-secondary"
                 style={{ padding: '10px 18px', fontSize: '0.9rem', borderRadius: 'var(--radius-md)', minHeight: 44, display: 'inline-flex', alignItems: 'center', gap: 8 }}
               >

@@ -3,6 +3,7 @@ import {
   Copy,
   Check,
   Maximize2,
+  Minimize2,
   ZoomIn,
   ZoomOut,
   RotateCcw,
@@ -20,7 +21,8 @@ import {
   Palette,
   ArrowUpDown,
   Upload,
-  Sparkles
+  Sparkles,
+  CircleDot
 } from 'lucide-react';
 import { usePalette } from '../../context/PaletteContext';
 import { useToast } from '../../context/ToastContext';
@@ -76,6 +78,12 @@ export default function ImageWorkspace() {
 
   // Loupe zoom magnification (range 2x - 32x, default 12x matching Screenshot 1)
   const [magnification, setMagnification] = useState(12);
+
+  // Loupe circle diameter (range 90px - 320px, default 180px)
+  const [loupeSize, setLoupeSize] = useState(180);
+
+  // Background image fit mode: 'cover' (fills & covers whole area) vs 'contain'
+  const [imageFit, setImageFit] = useState('cover');
 
   // Overall image zoom in viewport (1x - 3x)
   const [imageZoom, setImageZoom] = useState(1);
@@ -154,6 +162,20 @@ export default function ImageWorkspace() {
     return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
 
+  // Keyboard shortcut to resize magnifier circle loupe ([ shrink, ] grow)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.key === '[') {
+        setLoupeSize(prev => Math.max(90, prev - 15));
+      } else if (e.key === ']') {
+        setLoupeSize(prev => Math.min(320, prev + 15));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleToggleFullscreen = () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
@@ -176,28 +198,70 @@ export default function ImageWorkspace() {
   const handleZoomOut = () => setImageZoom(prev => Math.max(prev - 0.25, 0.75));
   const handleResetZoom = () => setImageZoom(1);
 
-  // Calculate pixel coordinates from event
+  // Mouse wheel handler to resize loupe circle when Alt or Shift is held
+  const handleAreaWheel = (e) => {
+    if (e.altKey || e.shiftKey) {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 15 : -15;
+      setLoupeSize(prev => Math.min(320, Math.max(90, prev + delta)));
+    }
+  };
+
+  // Calculate pixel coordinates from event with accurate cover/contain aspect-ratio math
   const getCoordinatesFromEvent = (e) => {
-    if (!imageRef.current || !canvasRef.current || !containerRef.current) return null;
+    if (!imageRef.current || !canvasRef.current) return null;
+
+    const targetArea = imageAreaRef.current || containerRef.current;
+    if (!targetArea) return null;
 
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    const rect = imageRef.current.getBoundingClientRect();
-    const mouseX = clientX - rect.left;
-    const mouseY = clientY - rect.top;
+    const imgRect = imageRef.current.getBoundingClientRect();
+    const mouseX = clientX - imgRect.left;
+    const mouseY = clientY - imgRect.top;
 
-    if (mouseX < 0 || mouseX > rect.width || mouseY < 0 || mouseY > rect.height) {
+    if (mouseX < 0 || mouseX > imgRect.width || mouseY < 0 || mouseY > imgRect.height) {
       return null;
     }
 
-    const scaleX = canvasRef.current.width / rect.width;
-    const scaleY = canvasRef.current.height / rect.height;
+    const naturalW = canvasRef.current.width;
+    const naturalH = canvasRef.current.height;
+    if (!naturalW || !naturalH) return null;
 
-    const actualX = Math.floor(mouseX * scaleX);
-    const actualY = Math.floor(mouseY * scaleY);
+    const renderedW = imgRect.width;
+    const renderedH = imgRect.height;
 
-    const targetArea = imageAreaRef.current || containerRef.current;
+    let actualX, actualY;
+
+    if (imageFit === 'cover') {
+      // In cover mode: image fills renderedW x renderedH completely, centered
+      const scale = Math.max(renderedW / naturalW, renderedH / naturalH);
+      const drawnW = naturalW * scale;
+      const drawnH = naturalH * scale;
+      const offsetX = (renderedW - drawnW) / 2;
+      const offsetY = (renderedH - drawnH) / 2;
+
+      actualX = Math.floor((mouseX - offsetX) / scale);
+      actualY = Math.floor((mouseY - offsetY) / scale);
+    } else {
+      // In contain mode: image fits inside renderedW x renderedH, centered
+      const scale = Math.min(renderedW / naturalW, renderedH / naturalH);
+      const drawnW = naturalW * scale;
+      const drawnH = naturalH * scale;
+      const offsetX = (renderedW - drawnW) / 2;
+      const offsetY = (renderedH - drawnH) / 2;
+
+      if (mouseX < offsetX || mouseX > offsetX + drawnW || mouseY < offsetY || mouseY > offsetY + drawnH) {
+        return null;
+      }
+      actualX = Math.floor((mouseX - offsetX) / scale);
+      actualY = Math.floor((mouseY - offsetY) / scale);
+    }
+
+    actualX = Math.min(Math.max(actualX, 0), naturalW - 1);
+    actualY = Math.min(Math.max(actualY, 0), naturalH - 1);
+
     const containerRect = targetArea.getBoundingClientRect();
     const relativeX = clientX - containerRect.left;
     const relativeY = clientY - containerRect.top;
@@ -477,25 +541,27 @@ export default function ImageWorkspace() {
               ) : null}
             </div>
 
-            {/* Viewport & Image Action Controls matching Screenshot 1 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            {/* Viewport & Image Action Controls */}
+            <div className="workspace-toolbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, flexWrap: 'nowrap' }}>
               {/* Change Image button */}
               <button
                 onClick={() => setIsSelectModalOpen(true)}
                 className="btn-change-image"
                 style={{
-                  padding: '6px 12px',
+                  padding: '5px 10px',
                   borderRadius: 8,
                   border: '1px solid var(--border-color)',
                   background: 'var(--bg-card)',
                   color: 'var(--text-primary)',
-                  fontSize: '0.82rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 6,
+                  gap: 5,
                   cursor: 'pointer',
-                  minHeight: 36,
+                  minHeight: 32,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                   transition: 'var(--transition-normal)'
                 }}
                 title="Change or upload image"
@@ -503,6 +569,121 @@ export default function ImageWorkspace() {
                 <ImageIcon size={14} />
                 <span className="btn-change-text">Change Image</span>
               </button>
+
+              {/* Fit Mode Toggle: Clean, Never-wrapping Cover / Contain Toggle */}
+              <button
+                type="button"
+                className={`btn-fit-toggle ${imageFit === 'cover' ? 'active' : ''}`}
+                style={{
+                  height: 32,
+                  padding: '0 10px',
+                  borderRadius: 8,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  border: '1px solid var(--border-color)',
+                  background: imageFit === 'cover' ? 'rgba(37, 150, 190, 0.12)' : 'var(--bg-card)',
+                  color: imageFit === 'cover' ? 'var(--color-accent-blue)' : 'var(--text-primary)',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  width: 'auto',
+                  minWidth: 'max-content',
+                  transition: 'var(--transition-normal)'
+                }}
+                onClick={() => setImageFit(prev => prev === 'cover' ? 'contain' : 'cover')}
+                title={imageFit === 'cover' ? 'Image Fit: Cover (Taking whole area). Click to switch to Contain.' : 'Image Fit: Contain (Fits whole image). Click to switch to Cover.'}
+                aria-label={`Toggle image fit mode, currently ${imageFit}`}
+              >
+                {imageFit === 'cover' ? <Minimize2 size={13} style={{ flexShrink: 0 }} /> : <Maximize2 size={13} style={{ flexShrink: 0 }} />}
+                <span className="btn-fit-text" style={{ whiteSpace: 'nowrap' }}>
+                  <span className="fit-prefix">Fit: </span>
+                  <strong style={{ fontWeight: 700 }}>{imageFit === 'cover' ? 'Cover' : 'Contain'}</strong>
+                </span>
+              </button>
+
+              {/* Loupe Circle Size Toolbar Control */}
+              <div
+                className="loupe-toolbar-picker"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 8,
+                  padding: '2px 4px',
+                  gap: 2,
+                  height: 32,
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
+                }}
+                title="Resize Magnifier Circle Loupe (Shortcut: [ / ] or Alt+Scroll)"
+              >
+                <CircleDot size={13} color="var(--color-accent-blue)" style={{ marginLeft: 2 }} />
+                <span className="loupe-toolbar-label" style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', padding: '0 2px' }}>
+                  Loupe
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setLoupeSize(prev => Math.max(90, prev - 20))}
+                  disabled={loupeSize <= 90}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 4,
+                    border: 'none',
+                    background: 'var(--bg-card-subtle)',
+                    color: 'var(--text-primary)',
+                    cursor: loupeSize <= 90 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    lineHeight: 1
+                  }}
+                  title="Decrease circle loupe size"
+                >
+                  -
+                </button>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    fontFamily: 'var(--font-mono)',
+                    minWidth: 38,
+                    textAlign: 'center'
+                  }}
+                >
+                  {loupeSize}px
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setLoupeSize(prev => Math.min(320, prev + 20))}
+                  disabled={loupeSize >= 320}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 4,
+                    border: 'none',
+                    background: 'var(--bg-card-subtle)',
+                    color: 'var(--text-primary)',
+                    cursor: loupeSize >= 320 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    lineHeight: 1
+                  }}
+                  title="Increase circle loupe size"
+                >
+                  +
+                </button>
+              </div>
 
               <button
                 className="theme-toggle-btn"
@@ -553,7 +734,7 @@ export default function ImageWorkspace() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: 'clamp(8px, 2.5vw, 24px)',
+              padding: imageFit === 'cover' ? 0 : 'clamp(8px, 2.5vw, 24px)',
               overflow: 'hidden',
               cursor: currentImage?.src ? 'crosshair' : 'default',
               position: 'relative',
@@ -567,6 +748,7 @@ export default function ImageWorkspace() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             onClick={handleImageClick}
+            onWheel={handleAreaWheel}
           >
             {!currentImage?.src ? (
               <div
@@ -614,7 +796,7 @@ export default function ImageWorkspace() {
                     <span>Upload Image</span>
                   </button>
                   <button
-                    onClick={() => loadSampleImage('yellow-portrait')}
+                    onClick={() => loadSampleImage('alpine-lake')}
                     className="btn-secondary"
                     style={{ padding: '9px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10 }}
                   >
@@ -637,51 +819,63 @@ export default function ImageWorkspace() {
                   containerWidth={loupeState.containerWidth}
                   containerHeight={loupeState.containerHeight}
                   magnification={magnification}
+                  loupeDiameter={loupeSize}
                   isTouch={loupeState.isTouch}
                   onCopy={(hex) => showToast(`Copied ${hex}`, 'success')}
                 />
 
-                {/* Main Interactive Source Image */}
+                {/* Main Interactive Source Image with cover fit to take whole area */}
                 <img
                   ref={imageRef}
                   src={currentImage.src}
                   alt={currentImage.title || 'Source image for palette extraction'}
                   style={{
+                    width: imageFit === 'cover' ? '100%' : 'auto',
+                    height: imageFit === 'cover' ? '100%' : 'auto',
                     maxWidth: '100%',
                     maxHeight: '100%',
-                    width: 'auto',
-                    height: 'auto',
-                    objectFit: 'contain',
-                    borderRadius: 12,
-                    boxShadow: '0 8px 24px -4px rgba(0,0,0,0.12)',
+                    objectFit: imageFit,
+                    borderRadius: imageFit === 'cover' ? 0 : 12,
+                    boxShadow: imageFit === 'cover' ? 'none' : '0 8px 24px -4px rgba(0,0,0,0.12)',
                     transform: `scale(${imageZoom})`,
                     transition: 'transform 0.15s ease-out',
-                    pointerEvents: 'none'
+                    pointerEvents: 'none',
+                    display: 'block'
                   }}
                 />
 
-                {/* Instruction Overlay Pill at bottom left matching Screenshot 1 */}
+                {/* Instruction Overlay Pill at bottom left */}
                 <div
+                  className="instruction-overlay-pill"
                   style={{
                     position: 'absolute',
-                    bottom: 16,
-                    left: 16,
-                    background: 'rgba(15, 23, 42, 0.85)',
-                    backdropFilter: 'blur(6px)',
+                    bottom: 'clamp(8px, 1.8vw, 16px)',
+                    left: 'clamp(8px, 1.8vw, 16px)',
+                    background: 'rgba(15, 23, 42, 0.88)',
+                    backdropFilter: 'blur(8px)',
                     color: '#FFFFFF',
-                    fontSize: '0.74rem',
+                    fontSize: 'clamp(0.66rem, 1.2vw, 0.74rem)',
                     fontWeight: 600,
-                    padding: '6px 14px',
+                    padding: 'clamp(4px, 0.8vw, 6px) clamp(8px, 1.4vw, 14px)',
                     borderRadius: 20,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.28)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
-                    pointerEvents: 'none'
+                    gap: 7,
+                    maxWidth: 'calc(100% - 24px)',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}
                 >
-                  <span style={{ fontSize: '0.9rem' }}>🖱️</span>
-                  <span>Move to inspect · Click to pick · Drag on mobile</span>
+                  <Pipette size={13} color="var(--color-accent-blue)" style={{ flexShrink: 0 }} />
+                  <span className="instruction-text-desktop" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    Move to inspect · Click to pick · [ / ] Resize loupe
+                  </span>
+                  <span className="instruction-text-mobile" style={{ display: 'none', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    Tap to pick · Drag to inspect
+                  </span>
                 </div>
               </>
             )}
@@ -714,17 +908,17 @@ export default function ImageWorkspace() {
         <div
           className="workspace-right-col"
           style={{
-            padding: 'clamp(18px, 2vw, 24px)',
+            padding: 'clamp(14px, 1.8vw, 22px)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 14,
+            gap: 'clamp(10px, 1.4vw, 14px)',
             background: 'var(--bg-card)',
             minWidth: 0
           }}
         >
           {/* Header with Title and Favorite button matching Screenshot 1 */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)', margin: 0 }}>
+            <h3 style={{ fontWeight: 800, fontSize: 'clamp(1.05rem, 1.8vw, 1.18rem)', color: 'var(--text-primary)', margin: 0 }}>
               Selected Color
             </h3>
             <button
@@ -754,23 +948,23 @@ export default function ImageWorkspace() {
           {/* Large Color Swatch with Color Name and Live Sample Text matching Screenshot 1 */}
           <div
             style={{
-              borderRadius: 14,
+              borderRadius: 'clamp(10px, 1.5vw, 14px)',
               backgroundColor: activeHex,
-              padding: '16px 20px',
+              padding: 'clamp(12px, 1.8vw, 18px) clamp(14px, 2.2vw, 20px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               boxShadow: 'var(--shadow-sm), inset 0 0 0 1px rgba(0,0,0,0.08)',
               transition: 'background-color 0.2s ease',
-              minHeight: 80
+              minHeight: 'clamp(72px, 9vh, 84px)'
             }}
           >
             {/* Left: Large HEX and Color Name */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
               <span
                 style={{
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '1.45rem',
+                  fontSize: 'clamp(1.25rem, 2.3vw, 1.48rem)',
                   fontWeight: 800,
                   color: sampleTextColor,
                   letterSpacing: '0.02em',
@@ -781,11 +975,14 @@ export default function ImageWorkspace() {
               </span>
               <span
                 style={{
-                  fontSize: '0.82rem',
+                  fontSize: 'clamp(0.74rem, 1.3vw, 0.82rem)',
                   fontWeight: 600,
                   color: sampleTextColor,
                   opacity: 0.88,
-                  marginTop: 2
+                  marginTop: 2,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 {colorName}
@@ -793,10 +990,10 @@ export default function ImageWorkspace() {
             </div>
 
             {/* Right: Aa Sample Text Preview showing Live Contrast */}
-            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
               <span
                 style={{
-                  fontSize: '1.45rem',
+                  fontSize: 'clamp(1.25rem, 2.3vw, 1.48rem)',
                   fontWeight: 800,
                   color: sampleTextColor,
                   lineHeight: 1.15
@@ -806,11 +1003,12 @@ export default function ImageWorkspace() {
               </span>
               <span
                 style={{
-                  fontSize: '0.74rem',
+                  fontSize: 'clamp(0.66rem, 1.2vw, 0.74rem)',
                   fontWeight: 600,
                   color: sampleTextColor,
                   opacity: 0.88,
-                  marginTop: 2
+                  marginTop: 2,
+                  whiteSpace: 'nowrap'
                 }}
               >
                 Sample Text
@@ -819,7 +1017,8 @@ export default function ImageWorkspace() {
           </div>
 
           {/* Color Values Table (HEX, RGB, HSL, CMYK) with Copy Buttons matching Screenshot 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {/* Color Values Table (HEX, RGB, HSL, CMYK) with Copy Buttons matching Screenshot 1 */}
+          <div className="color-values-grid" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 0.8vw, 7px)' }}>
             {[
               { label: 'HEX', value: activeHex },
               { label: 'RGB', value: rgbString },
@@ -832,16 +1031,15 @@ export default function ImageWorkspace() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '7px 10px',
+                  padding: 'clamp(5px, 0.8vw, 7px) clamp(8px, 1.2vw, 12px)',
                   borderRadius: 10,
                   background: 'var(--bg-card-subtle)',
                   border: '1px solid var(--border-color)',
-                  fontSize: '0.84rem',
                   gap: 8,
                   minWidth: 0
                 }}
               >
-                <span style={{ fontWeight: 700, color: 'var(--text-secondary)', width: 42, flexShrink: 0 }}>
+                <span style={{ fontWeight: 700, color: 'var(--text-secondary)', width: 'clamp(36px, 5vw, 42px)', flexShrink: 0, fontSize: 'clamp(0.72rem, 1.2vw, 0.8rem)' }}>
                   {item.label}
                 </span>
                 <span
@@ -854,7 +1052,7 @@ export default function ImageWorkspace() {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
-                    fontSize: '0.82rem',
+                    fontSize: 'clamp(0.75rem, 1.2vw, 0.82rem)',
                     letterSpacing: '-0.01em'
                   }}
                   title={item.value}
@@ -868,13 +1066,13 @@ export default function ImageWorkspace() {
                     border: 'none',
                     cursor: 'pointer',
                     color: copiedKey === item.label ? 'var(--badge-success-text)' : 'var(--text-secondary)',
-                    padding: 4,
+                    padding: 3,
                     borderRadius: 6,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: 30,
-                    height: 30,
+                    width: 28,
+                    height: 28,
                     flexShrink: 0
                   }}
                   title={`Copy ${item.label}`}
@@ -887,19 +1085,19 @@ export default function ImageWorkspace() {
           </div>
 
           {/* Contrast Ratio (WCAG) Section matching Screenshot 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span style={{ fontSize: 'clamp(0.76rem, 1.3vw, 0.82rem)', fontWeight: 700, color: 'var(--text-primary)' }}>
               Contrast Ratio (WCAG)
             </span>
 
-            <div className="color-contrast-row">
+            <div className="color-contrast-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(6px, 1.2vw, 10px)' }}>
               {/* White Text Card */}
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '8px 10px',
+                  padding: 'clamp(6px, 1vw, 8px) clamp(8px, 1.2vw, 10px)',
                   borderRadius: 10,
                   border: '1px solid var(--border-color)',
                   background: 'var(--bg-card-subtle)',
@@ -908,8 +1106,8 @@ export default function ImageWorkspace() {
               >
                 <div
                   style={{
-                    width: 24,
-                    height: 24,
+                    width: 'clamp(20px, 3vw, 24px)',
+                    height: 'clamp(20px, 3vw, 24px)',
                     borderRadius: '50%',
                     backgroundColor: '#FFFFFF',
                     border: '1.5px solid #CBD5E1',
@@ -917,12 +1115,12 @@ export default function ImageWorkspace() {
                   }}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                  <span style={{ fontWeight: 800, fontSize: 'clamp(0.82rem, 1.4vw, 0.88rem)', color: 'var(--text-primary)', lineHeight: 1.2 }}>
                     {contrastWhite}:1
                   </span>
                   <span
                     style={{
-                      fontSize: '0.68rem',
+                      fontSize: 'clamp(0.62rem, 1.1vw, 0.68rem)',
                       fontWeight: 700,
                       color: contrastWhite >= 4.5 ? 'var(--badge-success-text)' : 'var(--badge-error-text)',
                       whiteSpace: 'nowrap'
@@ -939,7 +1137,7 @@ export default function ImageWorkspace() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  padding: '8px 10px',
+                  padding: 'clamp(6px, 1vw, 8px) clamp(8px, 1.2vw, 10px)',
                   borderRadius: 10,
                   border: '1px solid var(--border-color)',
                   background: 'var(--bg-card-subtle)',
@@ -948,20 +1146,20 @@ export default function ImageWorkspace() {
               >
                 <div
                   style={{
-                    width: 24,
-                    height: 24,
+                    width: 'clamp(20px, 3vw, 24px)',
+                    height: 'clamp(20px, 3vw, 24px)',
                     borderRadius: '50%',
                     backgroundColor: '#000000',
                     flexShrink: 0
                   }}
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                  <span style={{ fontWeight: 800, fontSize: 'clamp(0.82rem, 1.4vw, 0.88rem)', color: 'var(--text-primary)', lineHeight: 1.2 }}>
                     {contrastBlack}:1
                   </span>
                   <span
                     style={{
-                      fontSize: '0.68rem',
+                      fontSize: 'clamp(0.62rem, 1.1vw, 0.68rem)',
                       fontWeight: 700,
                       color: contrastBlack >= 4.5 ? 'var(--badge-success-text)' : 'var(--badge-error-text)',
                       whiteSpace: 'nowrap'
@@ -979,7 +1177,7 @@ export default function ImageWorkspace() {
             {/* Eyedropper Mode Switcher */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <span style={{ fontSize: 'clamp(0.74rem, 1.3vw, 0.78rem)', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Eyedropper Mode
                 </span>
                 <HelpCircle size={13} color="var(--text-muted)" title="Pick color commits on click; Live preview updates continuously as you hover" />
@@ -989,20 +1187,21 @@ export default function ImageWorkspace() {
                   onClick={() => setEyedropperMode('pick')}
                   style={{
                     flex: 1,
-                    padding: '7px 8px',
+                    padding: '6px 8px',
                     borderRadius: 7,
                     border: 'none',
                     background: eyedropperMode === 'pick' ? 'var(--bg-card)' : 'transparent',
                     boxShadow: eyedropperMode === 'pick' ? 'var(--shadow-sm)' : 'none',
                     color: eyedropperMode === 'pick' ? 'var(--color-accent-blue)' : 'var(--text-secondary)',
                     fontWeight: 700,
-                    fontSize: '0.76rem',
+                    fontSize: 'clamp(0.72rem, 1.2vw, 0.76rem)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 5,
-                    minHeight: 36
+                    minHeight: 'clamp(32px, 4.2vh, 36px)',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   <Pipette size={13} />
@@ -1012,20 +1211,21 @@ export default function ImageWorkspace() {
                   onClick={() => setEyedropperMode('live')}
                   style={{
                     flex: 1,
-                    padding: '7px 8px',
+                    padding: '6px 8px',
                     borderRadius: 7,
                     border: 'none',
                     background: eyedropperMode === 'live' ? 'var(--bg-card)' : 'transparent',
                     boxShadow: eyedropperMode === 'live' ? 'var(--shadow-sm)' : 'none',
                     color: eyedropperMode === 'live' ? 'var(--color-accent-blue)' : 'var(--text-secondary)',
                     fontWeight: 700,
-                    fontSize: '0.76rem',
+                    fontSize: 'clamp(0.72rem, 1.2vw, 0.76rem)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: 5,
-                    minHeight: 36
+                    minHeight: 'clamp(32px, 4.2vh, 36px)',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   <Eye size={13} />
@@ -1037,10 +1237,10 @@ export default function ImageWorkspace() {
             {/* Magnifier Zoom Level Slider */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <span style={{ fontSize: 'clamp(0.74rem, 1.3vw, 0.78rem)', fontWeight: 700, color: 'var(--text-primary)' }}>
                   Zoom Level
                 </span>
-                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--color-accent-blue)', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ fontSize: 'clamp(0.76rem, 1.3vw, 0.8rem)', fontWeight: 800, color: 'var(--color-accent-blue)', fontFamily: 'var(--font-mono)' }}>
                   {magnification}×
                 </span>
               </div>
@@ -1059,12 +1259,78 @@ export default function ImageWorkspace() {
                     minWidth: 0,
                     cursor: 'pointer',
                     accentColor: 'var(--color-accent-blue)',
-                    minHeight: 26,
+                    minHeight: 24,
                     margin: 0
                   }}
                   aria-label="Magnifier Zoom Level"
                 />
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>32×</span>
+              </div>
+            </div>
+
+            {/* Magnifier Circle Size (Loupe Diameter) Slider */}
+            <div style={{ marginTop: 'clamp(8px, 1.2vw, 12px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                <span style={{ fontSize: 'clamp(0.74rem, 1.3vw, 0.78rem)', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  Loupe Circle Size
+                </span>
+                <span style={{ fontSize: 'clamp(0.76rem, 1.3vw, 0.8rem)', fontWeight: 800, color: 'var(--color-accent-blue)', fontFamily: 'var(--font-mono)' }}>
+                  {loupeSize}px
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '2px 0' }}>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>90px</span>
+                <input
+                  type="range"
+                  min="90"
+                  max="320"
+                  step="10"
+                  value={loupeSize}
+                  onChange={(e) => setLoupeSize(Number(e.target.value))}
+                  style={{
+                    flex: 1,
+                    width: '100%',
+                    minWidth: 0,
+                    cursor: 'pointer',
+                    accentColor: 'var(--color-accent-blue)',
+                    minHeight: 24,
+                    margin: 0
+                  }}
+                  aria-label="Loupe Circle Size"
+                />
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>320px</span>
+              </div>
+              {/* Quick preset chips */}
+              <div className="loupe-presets-grid" style={{ display: 'flex', gap: 5, marginTop: 6 }}>
+                {[
+                  { label: 'S', size: 120 },
+                  { label: 'M', size: 160 },
+                  { label: 'L', size: 200 },
+                  { label: 'XL', size: 260 }
+                ].map(preset => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => setLoupeSize(preset.size)}
+                    className={`loupe-preset-chip ${loupeSize === preset.size ? 'active' : ''}`}
+                    style={{
+                      flex: 1,
+                      padding: 'clamp(3px, 0.6vw, 5px) 0',
+                      fontSize: 'clamp(0.66rem, 1.1vw, 0.72rem)',
+                      fontWeight: loupeSize === preset.size ? 700 : 500,
+                      borderRadius: 6,
+                      border: '1px solid var(--border-color)',
+                      background: loupeSize === preset.size ? 'var(--color-accent-blue)' : 'var(--bg-card-subtle)',
+                      color: loupeSize === preset.size ? '#FFFFFF' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <span>{preset.label}</span>
+                    <span className="preset-chip-size"> ({preset.size}px)</span>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -1077,19 +1343,19 @@ export default function ImageWorkspace() {
             }}
             style={{
               width: '100%',
-              padding: '12px 18px',
+              padding: 'clamp(10px, 1.6vw, 13px) clamp(14px, 2vw, 18px)',
               borderRadius: 12,
               background: 'var(--color-accent-blue)',
               color: 'var(--text-inverse)',
               border: 'none',
-              fontSize: '0.94rem',
+              fontSize: 'clamp(0.86rem, 1.6vw, 0.94rem)',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
               cursor: 'pointer',
-              minHeight: 44,
+              minHeight: 'clamp(40px, 5.2vh, 46px)',
               boxShadow: '0 4px 14px rgba(37, 150, 190, 0.35)',
               transition: 'var(--transition-normal)'
             }}
@@ -1101,25 +1367,26 @@ export default function ImageWorkspace() {
           </button>
 
           {/* Secondary Action Buttons matching Screenshot 1 */}
-          <div className="workspace-action-buttons">
+          <div className="workspace-action-buttons" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(6px, 1.2vw, 10px)' }}>
             {/* Upload Image button */}
             <button
               onClick={() => setIsSelectModalOpen(true)}
               style={{
-                padding: '11px 14px',
+                padding: 'clamp(8px, 1.4vw, 11px) clamp(10px, 1.6vw, 14px)',
                 borderRadius: 10,
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-card)',
                 color: 'var(--text-primary)',
-                fontSize: '0.86rem',
+                fontSize: 'clamp(0.78rem, 1.4vw, 0.86rem)',
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
+                gap: 7,
                 cursor: 'pointer',
-                minHeight: 44,
-                transition: 'var(--transition-normal)'
+                minHeight: 'clamp(38px, 4.8vh, 44px)',
+                transition: 'var(--transition-normal)',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-accent-blue)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
@@ -1132,20 +1399,21 @@ export default function ImageWorkspace() {
             <button
               onClick={handlePickFromScreen}
               style={{
-                padding: '11px 14px',
+                padding: 'clamp(8px, 1.4vw, 11px) clamp(10px, 1.6vw, 14px)',
                 borderRadius: 10,
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-card)',
                 color: 'var(--text-primary)',
-                fontSize: '0.86rem',
+                fontSize: 'clamp(0.78rem, 1.4vw, 0.86rem)',
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
+                gap: 7,
                 cursor: 'pointer',
-                minHeight: 44,
-                transition: 'var(--transition-normal)'
+                minHeight: 'clamp(38px, 4.8vh, 44px)',
+                transition: 'var(--transition-normal)',
+                whiteSpace: 'nowrap'
               }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--color-accent-blue)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
@@ -1162,7 +1430,7 @@ export default function ImageWorkspace() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 6,
-              fontSize: '0.74rem',
+              fontSize: 'clamp(0.68rem, 1.2vw, 0.74rem)',
               color: 'var(--text-muted)',
               marginTop: 2
             }}

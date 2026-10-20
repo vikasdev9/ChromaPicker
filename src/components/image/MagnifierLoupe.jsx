@@ -20,21 +20,23 @@ export default function MagnifierLoupe({
   actualY = 0,
   sourceCanvasRef,
   canvas,
-  pixelColor = '#FFD814',
+  pixelColor = '#1A8EAC',
   visible = false,
   containerWidth = 600,
   containerHeight = 400,
   magnification = 12,
+  loupeDiameter: propLoupeDiameter = 180,
   isTouch = false,
   onCopy
 }) {
   const canvasRef = useRef(null);
   const [copied, setCopied] = React.useState(false);
 
-  // Responsive diameter: 140px on small mobile screens (< 460px), 180px on desktop
+  // Responsive diameter: adapt to user-selected prop with container safety clamp
   const isSmall = containerWidth < 460;
-  const loupeDiameter = isSmall ? 140 : 180;
-  const loupeRadius = loupeDiameter / 2;
+  const maxSafeDiameter = Math.max(70, Math.min(containerWidth - 12, containerHeight - 12));
+  const loupeDiameter = Math.min(propLoupeDiameter || (isSmall ? 140 : 180), maxSafeDiameter);
+  const loupeRadius = Math.round(loupeDiameter / 2);
 
   // Render zoomed pixel grid onto circular canvas
   useEffect(() => {
@@ -172,10 +174,11 @@ export default function MagnifierLoupe({
     cardLeft = Math.max(6, Math.min((containerWidth - CARD_WIDTH) / 2, containerWidth - CARD_WIDTH - 6));
   }
 
-  let cardTop = loupeTop + (isSmall ? 18 : 28);
+  let cardTop = loupeTop + Math.max(6, Math.round(loupeRadius - CARD_HEIGHT / 2));
   if (cardTop + CARD_HEIGHT > containerHeight - 6) {
     cardTop = Math.max(6, containerHeight - CARD_HEIGHT - 6);
   }
+  if (cardTop < 6) cardTop = 6;
 
   const handleCopyClick = (e) => {
     e.stopPropagation();
@@ -272,15 +275,15 @@ export default function MagnifierLoupe({
         <div
           style={{
             position: 'absolute',
-            bottom: isSmall ? 8 : 12,
+            bottom: Math.max(6, Math.round(loupeRadius * 0.12)),
             left: '50%',
             transform: 'translateX(-50%)',
             background: 'rgba(15, 23, 42, 0.88)',
             backdropFilter: 'blur(6px)',
             color: '#FFFFFF',
-            fontSize: isSmall ? '0.68rem' : '0.74rem',
+            fontSize: loupeDiameter < 130 ? '0.62rem' : isSmall ? '0.68rem' : '0.74rem',
             fontWeight: 700,
-            padding: isSmall ? '2px 8px' : '3px 10px',
+            padding: loupeDiameter < 130 ? '1px 6px' : isSmall ? '2px 8px' : '3px 10px',
             borderRadius: 20,
             border: '1px solid rgba(255, 255, 255, 0.25)',
             letterSpacing: '0.02em',

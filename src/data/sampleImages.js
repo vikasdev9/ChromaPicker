@@ -1,6 +1,8 @@
+import alpineLakeSrc from '../assets/alpine-lake.jpg';
+
 /**
  * High-quality Bundled Sample Images for Chromapick
- * Encoded as high-fidelity SVG Data URIs with rich palettes.
+ * Encoded as high-fidelity SVG Data URIs and photographic assets with rich palettes.
  * Instant zero-network offline loading.
  */
 
@@ -174,113 +176,20 @@ const cyberpunkSvg = `
 </svg>
 `.trim();
 
-// 4. Studio Portrait Yellow (Matching user reference)
-const yellowPortraitSvg = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
-  <defs>
-    <radialGradient id="yellowBackdrop" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#FFE84D"/>
-      <stop offset="60%" stop-color="#FFD814"/>
-      <stop offset="100%" stop-color="#EAB308"/>
-    </radialGradient>
-    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#F5B275"/>
-      <stop offset="35%" stop-color="#E7A06C"/>
-      <stop offset="75%" stop-color="#D08846"/>
-      <stop offset="100%" stop-color="#B86C2E"/>
-    </linearGradient>
-    <linearGradient id="shirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#2D2832"/>
-      <stop offset="40%" stop-color="#1D1A20"/>
-      <stop offset="100%" stop-color="#141116"/>
-    </linearGradient>
-    <radialGradient id="cheekGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#E7A06C" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#E7A06C" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-
-  <!-- Yellow Studio Background -->
-  <rect width="800" height="800" fill="url(#yellowBackdrop)"/>
-
-  <!-- Subtle Ambient Shadow behind subject -->
-  <ellipse cx="400" cy="520" rx="260" ry="220" fill="#CA9B04" opacity="0.22"/>
-
-  <!-- Black T-Shirt Shoulders and Torso -->
-  <path d="M 100,800 L 160,610 Q 240,540 320,530 L 480,530 Q 560,540 640,610 L 700,800 Z" fill="url(#shirtGrad)"/>
-  <!-- T-shirt crew collar -->
-  <path d="M 320,530 Q 400,580 480,530 Q 400,555 320,530 Z" fill="#2E2835" stroke="#1D1A20" stroke-width="3"/>
-
-  <!-- Neck -->
-  <path d="M 335,460 L 335,540 Q 400,565 465,540 L 465,460 Z" fill="#C87A38"/>
-  <!-- Neck shadow under chin -->
-  <path d="M 345,470 Q 400,510 455,470 Q 400,495 345,470 Z" fill="#75612C" opacity="0.6"/>
-
-  <!-- Ears -->
-  <ellipse cx="295" cy="405" rx="24" ry="38" fill="#D58E4E"/>
-  <ellipse cx="295" cy="405" rx="14" ry="24" fill="#B86C2E" opacity="0.7"/>
-  <!-- Silver Hoop Earring in right ear (matches photo!) -->
-  <ellipse cx="288" cy="425" rx="5" ry="7" fill="none" stroke="#E2E8F0" stroke-width="2.5"/>
-
-  <ellipse cx="505" cy="405" rx="24" ry="38" fill="#D58E4E"/>
-  <ellipse cx="505" cy="405" rx="14" ry="24" fill="#B86C2E" opacity="0.7"/>
-
-  <!-- Head / Face Structure -->
-  <ellipse cx="400" cy="390" rx="115" ry="142" fill="url(#skinGrad)"/>
-
-  <!-- Cheek Highlights -->
-  <circle cx="345" cy="400" r="35" fill="url(#cheekGlow)"/>
-  <circle cx="455" cy="400" r="35" fill="url(#cheekGlow)"/>
-
-  <!-- Hair Cut -->
-  <path d="M 285,380 Q 280,285 330,235 Q 380,200 440,220 Q 490,240 515,305 Q 525,355 515,385 Q 495,265 400,260 Q 315,265 285,380 Z" fill="#181310"/>
-  <!-- Textured hair volume -->
-  <path d="M 305,255 Q 360,210 425,215 Q 480,230 500,265 Q 445,235 375,240 Q 325,250 305,255 Z" fill="#2A1E17"/>
-
-  <!-- Eyebrows -->
-  <path d="M 320,335 Q 355,325 375,335" stroke="#1D1A20" stroke-width="9" stroke-linecap="round" fill="none"/>
-  <path d="M 425,335 Q 445,325 480,335" stroke="#1D1A20" stroke-width="9" stroke-linecap="round" fill="none"/>
-
-  <!-- Eyes -->
-  <ellipse cx="350" cy="365" rx="18" ry="10" fill="#FFFDFE"/>
-  <circle cx="350" cy="365" r="7" fill="#1D140C"/>
-  <circle cx="348" cy="363" r="2" fill="#FFFFFF"/>
-
-  <ellipse cx="450" cy="365" rx="18" ry="10" fill="#FFFDFE"/>
-  <circle cx="450" cy="365" r="7" fill="#1D140C"/>
-  <circle cx="448" cy="363" r="2" fill="#FFFFFF"/>
-
-  <!-- Nose -->
-  <path d="M 400,350 L 395,405 Q 400,415 410,405 Z" fill="#C07231" opacity="0.6"/>
-  <path d="M 385,408 Q 400,415 415,408" stroke="#8E461A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-
-  <!-- Mustache -->
-  <path d="M 365,435 Q 400,442 435,435 Q 400,450 365,435 Z" fill="#241913"/>
-
-  <!-- Lips -->
-  <path d="M 370,452 Q 400,456 430,452 Q 400,464 370,452 Z" fill="#A85434"/>
-
-  <!-- Beard & Goatee Outline -->
-  <path d="M 350,462 Q 400,495 450,462 Q 430,510 400,512 Q 370,510 350,462 Z" fill="#241913" opacity="0.85"/>
-  <!-- Stubble jawline -->
-  <path d="M 305,410 Q 320,480 375,512 Q 400,515 425,512 Q 480,480 495,410" stroke="#241913" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 3" fill="none" opacity="0.65"/>
-</svg>
-`.trim();
-
 function svgToDataUrl(svgString) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
 }
 
 export const SAMPLE_IMAGES = [
   {
-    id: 'yellow-portrait',
-    title: 'Studio Portrait Yellow (Reference)',
-    filename: 'portrait-yellow-bg.jpg',
-    width: 800,
-    height: 800,
-    size: '158 KB',
-    description: 'Vibrant yellow studio backdrop (#FFD814), warm skin tones, and black t-shirt.',
-    dataUrl: svgToDataUrl(yellowPortraitSvg)
+    id: 'alpine-lake',
+    title: 'Turquoise Alpine Lake & Wildflower Valley',
+    filename: 'alpine-lake.jpg',
+    width: 1024,
+    height: 1024,
+    size: '286 KB',
+    description: 'Glacial turquoise lake (#1A8EAC), golden granite peaks (#E5A158), purple lupines (#6D5EA6), and alpine wildflowers.',
+    dataUrl: alpineLakeSrc
   },
   {
     id: 'desert-car',

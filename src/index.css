@@ -1351,7 +1351,7 @@ select.input-text option {
 
 .desktop-center-content {
   flex: 1;
-  max-width: 880px;
+  max-width: 1080px;
   min-width: 0;
   width: 100%;
   display: flex;
@@ -1360,7 +1360,7 @@ select.input-text option {
 }
 
 .desktop-ad-right {
-  width: 280px;
+  width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -1371,25 +1371,30 @@ select.input-text option {
 
 @media (max-width: 1400px) {
   .desktop-ad-left {
-    width: 210px;
-  }
-  .desktop-ad-right {
-    width: 240px;
-  }
-  .desktop-ad-layout {
-    gap: 14px;
-  }
-}
-
-@media (max-width: 1220px) and (min-width: 1025px) {
-  .desktop-ad-left {
-    width: 190px;
+    width: 180px;
   }
   .desktop-ad-right {
     width: 220px;
   }
   .desktop-ad-layout {
     gap: 12px;
+  }
+}
+
+@media (max-width: 1240px) {
+  /* On mid-sized screens, hide left ad rail so main color workspace has ample room */
+  .desktop-ad-left {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1140px) {
+  /* Hide right ad rail below 1140px as well so center content gets full breathing room */
+  .desktop-ad-right {
+    display: none !important;
+  }
+  .desktop-center-content {
+    max-width: 100% !important;
   }
 }
 
@@ -1416,7 +1421,7 @@ select.input-text option {
 /* ================= RESPONSIVE WORKSPACE & PALETTE ================= */
 .workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(330px, 350px);
+  grid-template-columns: minmax(0, 1.4fr) minmax(310px, 360px);
   min-height: 480px;
   width: 100%;
 }
@@ -1425,6 +1430,8 @@ select.input-text option {
   border-right: 1px solid var(--border-color);
   min-width: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .workspace-right-col {
@@ -1432,7 +1439,101 @@ select.input-text option {
 }
 
 .workspace-image-area {
-  min-height: clamp(280px, 42vh, 460px);
+  height: clamp(360px, 54vh, 640px);
+  min-height: 320px;
+}
+
+/* Toolbar Responsive Styles */
+.workspace-image-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px clamp(10px, 2vw, 18px);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.workspace-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.btn-fit-toggle {
+  width: auto !important;
+  min-width: max-content !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: var(--transition-normal) !important;
+}
+
+.btn-fit-toggle:hover {
+  background: var(--bg-card-subtle) !important;
+  border-color: var(--color-accent-blue) !important;
+}
+
+.btn-fit-toggle.active {
+  background: rgba(37, 150, 190, 0.12) !important;
+  border-color: var(--color-accent-blue) !important;
+  color: var(--color-accent-blue) !important;
+}
+
+.btn-fit-text,
+.btn-change-text {
+  white-space: nowrap !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+@media (max-width: 680px) {
+  .btn-change-text {
+    display: none !important;
+  }
+  .loupe-toolbar-label {
+    display: none !important;
+  }
+  .fit-prefix {
+    display: none !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .workspace-image-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+  .workspace-toolbar-actions {
+    justify-content: flex-start !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .workspace-toolbar-actions::-webkit-scrollbar {
+    height: 3px;
+  }
+  .workspace-toolbar-actions::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+  }
 }
 
 /* Header & Mobile Navigation */
@@ -1463,22 +1564,23 @@ select.input-text option {
   }
 }
 
-/* Tablet Responsive Workspace (769px to 1024px) */
-@media (max-width: 1024px) and (min-width: 769px) {
+/* Tablet Responsive Workspace (Stack below 980px for optimal room) */
+@media (max-width: 980px) {
   .workspace-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 340px);
+    grid-template-columns: 100% !important;
     min-height: auto;
   }
   .workspace-left-col {
-    border-right: 1px solid var(--border-color);
-    border-bottom: none;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
   }
   .workspace-right-col {
-    padding: 16px 16px !important;
-    gap: 12px !important;
+    padding: 18px 16px !important;
+    gap: 14px !important;
   }
   .workspace-image-area {
-    min-height: clamp(280px, 46vh, 480px);
+    height: clamp(300px, 48vh, 520px);
+    min-height: 280px;
   }
 }
 
@@ -1489,20 +1591,9 @@ select.input-text option {
     display: none !important;
   }
 
-  .workspace-grid {
-    grid-template-columns: 100%;
-    min-height: auto;
-  }
-  .workspace-left-col {
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-  .workspace-right-col {
-    padding: 18px 16px !important;
-    gap: 14px !important;
-  }
   .workspace-image-area {
-    min-height: clamp(240px, 40vh, 380px);
+    height: clamp(240px, 42vh, 400px);
+    min-height: 240px;
   }
 }
 
@@ -1514,6 +1605,39 @@ select.input-text option {
   .hero-buttons button {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 980px) {
+  /* On tablet stacked layout, give color values a 2x2 grid for elegant balance */
+  .color-values-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .instruction-text-desktop {
+    display: none !important;
+  }
+  .instruction-text-mobile {
+    display: inline !important;
+  }
+}
+
+@media (max-width: 440px) {
+  .preset-chip-size {
+    display: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .workspace-action-buttons {
+    grid-template-columns: 1fr !important;
+  }
+  .color-contrast-row {
+    grid-template-columns: 1fr !important;
   }
 }
 

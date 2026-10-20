@@ -20,17 +20,17 @@ export function PaletteProvider({ children }) {
   });
 
   const [extractedPalette, setExtractedPalette] = useState([
-    { hex: '#FFD814', rgb: { r: 255, g: 216, b: 20 }, hsl: { h: 50, s: 100, l: 54 }, frequency: 32 },
-    { hex: '#1D1A20', rgb: { r: 29, g: 26, b: 32 }, hsl: { h: 270, s: 10, l: 12 }, frequency: 18 },
-    { hex: '#E7A06C', rgb: { r: 231, g: 160, b: 108 }, hsl: { h: 25, s: 72, l: 66 }, frequency: 12 },
-    { hex: '#75612C', rgb: { r: 117, g: 97, b: 44 }, hsl: { h: 44, s: 45, l: 32 }, frequency: 9 },
-    { hex: '#5D3B30', rgb: { r: 93, g: 59, b: 48 }, hsl: { h: 15, s: 32, l: 28 }, frequency: 8 },
-    { hex: '#F4B58E', rgb: { r: 244, g: 181, b: 142 }, hsl: { h: 23, s: 81, l: 76 }, frequency: 7 },
-    { hex: '#B9952C', rgb: { r: 185, g: 149, b: 44 }, hsl: { h: 45, s: 62, l: 45 }, frequency: 6 },
-    { hex: '#A96B4A', rgb: { r: 169, g: 107, b: 74 }, hsl: { h: 21, s: 39, l: 48 }, frequency: 4 }
+    { hex: '#1A8EAC', rgb: { r: 26, g: 142, b: 172 }, hsl: { h: 192, s: 74, l: 39 }, frequency: 28 },
+    { hex: '#E5A158', rgb: { r: 229, g: 161, b: 88 }, hsl: { h: 31, s: 75, l: 62 }, frequency: 22 },
+    { hex: '#6D5EA6', rgb: { r: 109, g: 94, b: 166 }, hsl: { h: 252, s: 30, l: 51 }, frequency: 16 },
+    { hex: '#2F4827', rgb: { r: 47, g: 72, b: 39 }, hsl: { h: 105, s: 30, l: 22 }, frequency: 14 },
+    { hex: '#D96638', rgb: { r: 217, g: 102, b: 56 }, hsl: { h: 17, s: 67, l: 54 }, frequency: 10 },
+    { hex: '#F4D35E', rgb: { r: 244, g: 211, b: 94 }, hsl: { h: 47, s: 87, l: 66 }, frequency: 8 },
+    { hex: '#7FAAB9', rgb: { r: 127, g: 170, b: 185 }, hsl: { h: 196, s: 31, l: 61 }, frequency: 6 },
+    { hex: '#203142', rgb: { r: 32, g: 49, b: 66 }, hsl: { h: 210, s: 35, l: 19 }, frequency: 4 }
   ]);
 
-  const [selectedColor, setSelectedColor] = useState('#FFD814');
+  const [selectedColor, setSelectedColor] = useState('#1A8EAC');
   const [hoveredColor, setHoveredColor] = useState(null);
   const [isExtracting, setIsExtracting] = useState(false);
 

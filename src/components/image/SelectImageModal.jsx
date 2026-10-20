@@ -248,11 +248,11 @@ export default function SelectImageModal({ isOpen, onClose }) {
   // Stock library photos for Search tab
   const STOCK_PHOTOS = [
     {
-      id: 'yellow-portrait',
-      title: 'Studio Portrait Yellow (Reference)',
-      category: 'portrait',
-      sampleId: 'yellow-portrait',
-      colors: ['#FED100', '#E59A57', '#1D1A20']
+      id: 'alpine-lake',
+      title: 'Turquoise Alpine Lake & Wildflower Valley',
+      category: 'nature',
+      sampleId: 'alpine-lake',
+      colors: ['#1A8EAC', '#E5A158', '#6D5EA6']
     },
     {
       id: 'desert-car',
